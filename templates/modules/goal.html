@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ goal.title }} - Code Dojo{% endblock %}
+
+{% block content %}
+<div class="goal-detail">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('home') }}">Home</a> &raquo;
+        <a href="{{ url_for('modules.module_detail', module_id=module.id) }}">{{ module.title }}</a> &raquo;
+        <span>{{ goal.title }}</span>
+    </nav>
+
+    <header class="goal-header">
+        <h1>{{ goal.title }}</h1>
+    </header>
+
+    <div class="goal-content-grid">
+        <!-- Video Section -->
+        <section class="video-section">
+            <h2>Tutorial Video</h2>
+            {% if goal.video_url %}
+                <div class="video-container">
+                    <iframe
+                        src="{{ goal.video_url.replace('watch?v=', 'embed/') }}"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            {% else %}
+                <p class="empty-state">No video available for this goal.</p>
+            {% endif %}
+        </section>
+
+        <!-- Challenge Description -->
+        <section class="challenge-section">
+            <h2>Challenge</h2>
+            <div class="challenge-content markdown-content">
+                {{ goal.challenge_md | markdown }}
+            </div>
+
+            {% if goal.starter_repo %}
+                <div class="starter-repo">
+                    <h3>Starter Repository</h3>
+                    <p>Fork or clone this repository to get started:</p>
+                    <a href="{{ goal.starter_repo }}" target="_blank" class="repo-link">
+                        {{ goal.starter_repo }}
+                    </a>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Submission Form -->
+        <section class="submission-section">
+            <h2>Submit Your Solution</h2>
+            {% if current_user.is_authenticated %}
+                <form method="POST" action="{{ url_for('submissions.create_submission') }}" class="submission-form">
+                    <input type="hidden" name="goal_id" value="{{ goal.id }}">
+
+                    <div class="form-group">
+                        <label for="repo_url">Your GitHub Repository URL</label>
+                        <input type="url" id="repo_url" name="repo_url" required
+                               placeholder="https://github.com/yourusername/your-repo">
+                        <small>Enter the full URL to your GitHub repository with your solution.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="branch">Branch Name</label>
+                        <input type="text" id="branch" name="branch" value="main"
+                               placeholder="main">
+                        <small>The branch containing your solution (default: main).</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">Submit for Review</button>
+                </form>
+            {% else %}
+                <div class="login-prompt">
+                    <p>Please log in to submit your solution.</p>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
+                    <a href="{{ url_for('auth.signup') }}" class="btn btn-secondary">Sign Up</a>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule a Session - Code Dojo{% endblock %}
+
+{% block content %}
+<div class="scheduling-page">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('home') }}">Home</a> &raquo;
+        <a href="{{ url_for('submissions.view_submission', submission_id=submission.id) }}">Submission #{{ submission.id }}</a> &raquo;
+        <span>Schedule a Session</span>
+    </nav>
+
+    <header class="scheduling-header">
+        <h1>Schedule a Session</h1>
+        <p class="scheduling-context">
+            Get help with your submission for <strong>{{ submission.goal.title }}</strong>
+        </p>
+    </header>
+
+    <div class="calendly-container">
+        <!-- Calendly inline widget -->
+        <div class="calendly-inline-widget"
+             data-url="{{ calendly_url }}?hide_gdpr_banner=1&primary_color=2563eb&name={{ student_name | urlencode }}&email={{ student_email | urlencode }}"
+             style="min-width:320px;height:700px;">
+        </div>
+        <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('submissions.view_submission', submission_id=submission.id) }}"
+           class="btn btn-secondary">Back to Submission</a>
+    </div>
+</div>
+{% endblock %}

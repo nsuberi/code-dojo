@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}Anatomy Topics - {{ goal.title }} - Code Dojo{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a> &raquo;
+        <span>Anatomy Topics: {{ goal.title }}</span>
+    </nav>
+
+    <header class="page-header">
+        <h1>Anatomy Topics</h1>
+        <p class="subtitle">Configure discussion topics for: <strong>{{ goal.title }}</strong></p>
+    </header>
+
+    <!-- Add New Topic Form -->
+    <section class="card add-topic-section">
+        <h2>Add New Topic</h2>
+        <form method="POST" class="topic-form">
+            <input type="hidden" name="action" value="add">
+
+            <div class="form-group">
+                <label for="name">Topic Name</label>
+                <input type="text" id="name" name="name" placeholder="e.g., Flask Routes, Authentication, Database Queries" required>
+                <small>A short, descriptive name for this anatomy topic</small>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3" placeholder="What should students understand about this topic?"></textarea>
+                <small>Help the AI understand what to focus on when discussing this topic</small>
+            </div>
+
+            <div class="form-group">
+                <label for="suggested_analogies">Suggested Analogies</label>
+                <textarea id="suggested_analogies" name="suggested_analogies" rows="3" placeholder="e.g., Routes are like signposts directing traffic to different destinations"></textarea>
+                <small>Analogies the AI can use when teaching this concept (one per line)</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Topic</button>
+        </form>
+    </section>
+
+    <!-- Existing Topics -->
+    <section class="card topics-list-section">
+        <h2>Current Topics ({{ topics | length }})</h2>
+
+        {% if topics %}
+            <div class="topics-list" id="topics-list">
+                {% for topic in topics %}
+                    <div class="topic-item" data-topic-id="{{ topic.id }}">
+                        <div class="topic-header">
+                            <span class="drag-handle" title="Drag to reorder">&#9776;</span>
+                            <span class="topic-order">{{ loop.index }}</span>
+                            <h3 class="topic-name">{{ topic.name }}</h3>
+                            <button type="button" class="btn btn-small btn-secondary toggle-details" onclick="toggleDetails({{ topic.id }})">
+                                Edit
+                            </button>
+                        </div>
+
+                        <div class="topic-details" id="details-{{ topic.id }}" style="display: none;">
+                            <form method="POST" class="edit-topic-form">
+                                <input type="hidden" name="action" value="update">
+                                <input type="hidden" name="topic_id" value="{{ topic.id }}">
+
+                                <div class="form-group">
+                                    <label>Topic Name</label>
+                                    <input type="text" name="name" value="{{ topic.name }}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="description" rows="2">{{ topic.description or '' }}</textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Suggested Analogies</label>
+                                    <textarea name="suggested_analogies" rows="2">{{ topic.suggested_analogies or '' }}</textarea>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary btn-small">Save Changes</button>
+                                    <button type="button" class="btn btn-secondary btn-small" onclick="toggleDetails({{ topic.id }})">Cancel</button>
+                                </div>
+                            </form>
+
+                            <form method="POST" class="delete-form" onsubmit="return confirm('Delete this topic?');">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="topic_id" value="{{ topic.id }}">
+                                <button type="submit" class="btn btn-danger btn-small">Delete Topic</button>
+                            </form>
+                        </div>
+
+                        {% if topic.description %}
+                            <p class="topic-description">{{ topic.description }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <form method="POST" id="reorder-form" style="display: none;">
+                <input type="hidden" name="action" value="reorder">
+                <input type="hidden" name="order" id="order-input">
+            </form>
+        {% else %}
+            <p class="empty-state">No anatomy topics configured yet. Add your first topic above!</p>
+        {% endif %}
+    </section>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<style>
+    .admin-page {
+        max-width: 800px;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header .subtitle {
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+
+    .card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+        margin-bottom: 1rem;
+    }
+
+    .topic-form textarea,
+    .edit-topic-form textarea {
+        resize: vertical;
+    }
+
+    .topics-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .topic-item {
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+
+    .topic-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .drag-handle {
+        cursor: grab;
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+    }
+
+    .topic-order {
+        background: var(--primary-color);
+        color: white;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .topic-name {
+        flex: 1;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .topic-description {
+        margin: 0.75rem 0 0 2.75rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .topic-details {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .edit-topic-form .form-group {
+        margin-bottom: 0.75rem;
+    }
+
+    .delete-form {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-danger {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+    }
+
+    .add-topic-section {
+        border-left: 4px solid var(--primary-color);
+    }
+</style>
+
+<script>
+function toggleDetails(topicId) {
+    const details = document.getElementById('details-' + topicId);
+    if (details.style.display === 'none') {
+        // Hide all other details first
+        document.querySelectorAll('.topic-details').forEach(d => d.style.display = 'none');
+        details.style.display = 'block';
+    } else {
+        details.style.display = 'none';
+    }
+}
+
+// Simple drag-and-drop reordering (optional enhancement)
+document.addEventListener('DOMContentLoaded', function() {
+    const list = document.getElementById('topics-list');
+    if (!list) return;
+
+    let draggedItem = null;
+
+    list.querySelectorAll('.topic-item').forEach(item => {
+        const handle = item.querySelector('.drag-handle');
+
+        handle.addEventListener('mousedown', () => {
+            item.setAttribute('draggable', 'true');
+        });
+
+        item.addEventListener('dragstart', (e) => {
+            draggedItem = item;
+            item.classList.add('dragging');
+        });
+
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+            item.setAttribute('draggable', 'false');
+            saveOrder();
+        });
+
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (draggedItem && draggedItem !== item) {
+                const rect = item.getBoundingClientRect();
+                const midY = rect.top + rect.height / 2;
+                if (e.clientY < midY) {
+                    list.insertBefore(draggedItem, item);
+                } else {
+                    list.insertBefore(draggedItem, item.nextSibling);
+                }
+            }
+        });
+    });
+
+    function saveOrder() {
+        const items = list.querySelectorAll('.topic-item');
+        const order = Array.from(items).map(item => item.dataset.topicId).join(',');
+        document.getElementById('order-input').value = order;
+        document.getElementById('reorder-form').submit();
+    }
+});
+</script>
+{% endblock %}

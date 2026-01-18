@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Review Submission #{{ submission.id }} - Code Dojo{% endblock %}
+
+{% block content %}
+<div class="instructor-review">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a> &raquo;
+        <span>Review Submission #{{ submission.id }}</span>
+    </nav>
+
+    <header class="review-header">
+        <h1>Review: {{ submission.goal.title }}</h1>
+        <div class="submission-meta">
+            <span>Student: {{ submission.user.email }}</span>
+            <span>Submitted: {{ submission.created_at.strftime('%B %d, %Y at %H:%M') }}</span>
+        </div>
+    </header>
+
+    <!-- Submission Details -->
+    <section class="submission-details">
+        <h2>Submission Details</h2>
+        <dl>
+            <dt>Repository</dt>
+            <dd><a href="{{ submission.repo_url }}" target="_blank">{{ submission.repo_url }}</a></dd>
+            <dt>Branch</dt>
+            <dd>{{ submission.branch }}</dd>
+            <dt>Challenge</dt>
+            <dd>{{ submission.goal.title }}</dd>
+        </dl>
+    </section>
+
+    <!-- Code Diff Section -->
+    <section class="diff-section">
+        <h2>Code Changes</h2>
+        {% if diff_content and not diff_content.startswith('Error') and not diff_content.startswith('GitHub API') %}
+            <!-- Summary Stats Bar -->
+            <div class="diff-summary">
+                <span class="stat">
+                    <svg class="stat-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                        <path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"/>
+                    </svg>
+                    <strong>{{ file_count }}</strong> {{ 'file' if file_count == 1 else 'files' }} changed
+                </span>
+                <span class="stat additions">+{{ total_additions }} additions</span>
+                <span class="stat deletions">-{{ total_deletions }} deletions</span>
+                <a href="{{ submission.repo_url }}" target="_blank" class="view-on-github">
+                    View on GitHub
+                    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                        <path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Diff Container -->
+            <div class="diff-container">
+                {{ diff_content | format_diff }}
+            </div>
+        {% elif diff_content and (diff_content.startswith('Error') or diff_content.startswith('GitHub API') or diff_content.startswith('No changes')) %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor" opacity="0.5">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm0-10h2v8h-2V7z"/>
+                    </svg>
+                </div>
+                <p>{{ diff_content }}</p>
+                <p class="help-text">This could be due to API rate limits, repository access issues, or no code changes.</p>
+                <a href="{{ submission.repo_url }}" target="_blank" class="btn btn-secondary">
+                    View repository directly on GitHub
+                </a>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor" opacity="0.5">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm0-10h2v8h-2V7z"/>
+                    </svg>
+                </div>
+                <p>Could not load code diff.</p>
+                <p class="help-text">This could be due to API rate limits or repository access issues.</p>
+                <a href="{{ submission.repo_url }}" target="_blank" class="btn btn-secondary">
+                    View repository directly on GitHub
+                </a>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- AI Feedback Reference -->
+    {% if submission.ai_feedback %}
+        <section class="ai-feedback-reference">
+            <h2>AI Feedback (for reference)</h2>
+            <div class="feedback-content markdown-content">
+                {{ submission.ai_feedback.content | markdown }}
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- Review Form -->
+    <section class="review-form-section">
+        <h2>Your Review</h2>
+        <form method="POST" action="{{ url_for('admin.review_submission', submission_id=submission.id) }}" class="review-form">
+            <div class="form-group">
+                <label for="comment">Feedback Comments</label>
+                <textarea id="comment" name="comment" rows="6"
+                          placeholder="Provide constructive feedback for the student...">{{ submission.instructor_feedback.comment if submission.instructor_feedback else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Result</label>
+                <div class="pass-fail-toggle">
+                    <label class="toggle-option">
+                        <input type="radio" name="passed" value="true"
+                               {% if submission.instructor_feedback and submission.instructor_feedback.passed %}checked{% endif %}>
+                        <span class="toggle-label pass">Pass</span>
+                    </label>
+                    <label class="toggle-option">
+                        <input type="radio" name="passed" value="false"
+                               {% if submission.instructor_feedback and not submission.instructor_feedback.passed %}checked{% endif %}
+                               {% if not submission.instructor_feedback %}checked{% endif %}>
+                        <span class="toggle-label fail">Needs Work</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">Save Review</button>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

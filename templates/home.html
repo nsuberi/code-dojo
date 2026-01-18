@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Code Dojo - Home{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome to Code Dojo</h1>
+    <p>Learn to code by building real projects. Get AI feedback and instructor reviews.</p>
+    {% if not current_user.is_authenticated %}
+        <div class="hero-buttons">
+            <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-lg">Login</a>
+        </div>
+    {% endif %}
+</div>
+
+<section class="modules-section">
+    <h2>Learning Modules</h2>
+    {% if modules %}
+        <div class="module-grid">
+            {% for module in modules %}
+                <div class="module-card">
+                    <h3>{{ module.title }}</h3>
+                    <p>{{ module.description }}</p>
+                    <div class="module-meta">
+                        <span>{{ module.goals.count() }} learning goals</span>
+                    </div>
+                    <a href="{{ url_for('modules.module_detail', module_id=module.id) }}" class="btn btn-primary">
+                        Start Learning
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">No learning modules available yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

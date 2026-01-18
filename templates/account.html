@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}My Account - Code Dojo{% endblock %}
+
+{% block content %}
+<div class="account-page">
+    <h1>My Account</h1>
+
+    <section class="account-info">
+        <h2>Account Information</h2>
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
+        <p><strong>Role:</strong> {{ current_user.role | capitalize }}</p>
+        <p><strong>Member since:</strong> {{ current_user.created_at.strftime('%B %d, %Y') }}</p>
+        <a href="{{ url_for('auth.reset_password') }}" class="btn btn-secondary">Reset Password</a>
+    </section>
+
+    <section class="submissions-history">
+        <h2>My Submissions</h2>
+        {% if submissions %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Challenge</th>
+                        <th>Status</th>
+                        <th>Result</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in submissions %}
+                        <tr>
+                            <td>{{ submission.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ submission.goal.title }}</td>
+                            <td>
+                                <span class="status-badge status-{{ submission.status }}">
+                                    {{ submission.status | replace('_', ' ') | title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if submission.instructor_feedback %}
+                                    {% if submission.instructor_feedback.passed %}
+                                        <span class="badge badge-success">Passed</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">Needs Work</span>
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('submissions.view_submission', submission_id=submission.id) }}"
+                                   class="btn btn-small">View</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty-state">You haven't submitted any work yet. Start a learning module to begin!</p>
+            <a href="{{ url_for('home') }}" class="btn btn-primary">Browse Modules</a>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Submission #{{ submission.id }} - Code Dojo{% endblock %}
+
+{% block content %}
+<div class="submission-view">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('home') }}">Home</a> &raquo;
+        <a href="{{ url_for('auth.account') }}">My Account</a> &raquo;
+        <span>Submission #{{ submission.id }}</span>
+    </nav>
+
+    <header class="submission-header">
+        <h1>{{ submission.goal.title }}</h1>
+        <div class="submission-meta">
+            <span>Submitted: {{ submission.created_at.strftime('%B %d, %Y at %H:%M') }}</span>
+            <span class="status-badge status-{{ submission.status }}">
+                {{ submission.status | replace('_', ' ') | title }}
+            </span>
+        </div>
+    </header>
+
+    <section class="submission-details">
+        <h2>Submission Details</h2>
+        <dl>
+            <dt>Repository</dt>
+            <dd><a href="{{ submission.repo_url }}" target="_blank">{{ submission.repo_url }}</a></dd>
+            <dt>Branch</dt>
+            <dd>{{ submission.branch }}</dd>
+        </dl>
+    </section>
+
+    <!-- AI Feedback Section -->
+    <section class="feedback-section ai-feedback">
+        <h2>AI Feedback</h2>
+        {% if submission.ai_feedback %}
+            <div class="feedback-content markdown-content">
+                {{ submission.ai_feedback.content | markdown }}
+            </div>
+            <small class="feedback-timestamp">
+                Generated: {{ submission.ai_feedback.created_at.strftime('%B %d, %Y at %H:%M') }}
+            </small>
+        {% elif submission.status == 'pending' %}
+            <div class="processing-indicator">
+                <div class="spinner"></div>
+                <p>Processing your submission...</p>
+            </div>
+        {% else %}
+            <p class="empty-state">AI feedback is not available for this submission.</p>
+        {% endif %}
+    </section>
+
+    <!-- Request Instructor Feedback -->
+    {% if submission.status == 'ai_complete' and not submission.instructor_feedback %}
+        <section class="request-feedback-section">
+            <h2>Request Instructor Review</h2>
+            <p>Ready for a human review? An instructor will review your code and provide personalized feedback.</p>
+            <form method="POST" action="{{ url_for('submissions.request_instructor_feedback', submission_id=submission.id) }}">
+                <button type="submit" class="btn btn-primary">Request Instructor Feedback</button>
+            </form>
+        </section>
+    {% endif %}
+
+    {% if submission.status == 'feedback_requested' and not submission.instructor_feedback %}
+        <section class="pending-review-section">
+            <h2>Instructor Review</h2>
+            <div class="pending-indicator">
+                <p>Your submission is in the instructor review queue. Check back soon!</p>
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- Anatomy Discussion Section -->
+    {% if submission.ai_feedback %}
+    <section class="anatomy-section" id="anatomy-section" data-submission-id="{{ submission.id }}">
+        <div class="anatomy-section-header">
+            <img src="{{ url_for('static', filename='assets/socratic-sensei.png') }}" alt="Socratic Sensei" class="sensei-icon">
+            <h2>Explore Your Code</h2>
+        </div>
+
+        <div class="anatomy-layout">
+            <!-- Sidebar with elements -->
+            <div class="anatomy-sidebar">
+                <h3>Discussion Topics</h3>
+                <div class="anatomy-elements-list" id="anatomy-elements-list">
+                    <div class="anatomy-loading">
+                        <div class="spinner"></div>
+                        Loading topics...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat container -->
+            <div class="chat-container" id="chat-container" style="display: none;">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <img src="{{ url_for('static', filename='assets/socratic-sensei.png') }}" alt="Sensei" class="chat-header-avatar">
+                        <div>
+                            <h4>Socratic Sensei</h4>
+                            <span class="chat-header-topic" id="chat-topic-name">Select a topic</span>
+                        </div>
+                    </div>
+                    <button class="chat-end-btn" id="chat-end-btn" title="End conversation and see summary">
+                        End Discussion
+                    </button>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages will be added here -->
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="chat-input-form">
+                        <textarea
+                            class="chat-input"
+                            id="chat-input"
+                            placeholder="Type your response..."
+                            rows="1"
+                        ></textarea>
+                        <button class="chat-send-btn" id="chat-send-btn">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state when no topic selected -->
+            <div class="chat-empty-state" id="chat-empty-state">
+                <img src="{{ url_for('static', filename='assets/socratic-sensei.png') }}" alt="Sensei">
+                <h4>Select a Topic to Discuss</h4>
+                <p>Choose a code element from the sidebar to start a Socratic dialogue about your implementation.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Synthesis Modal -->
+    <div class="modal-overlay" id="synthesis-modal-overlay">
+        <div class="synthesis-modal">
+            <div class="synthesis-modal-header">
+                <img src="{{ url_for('static', filename='assets/socratic-sensei.png') }}" alt="Sensei">
+                <h3>Learning Summary</h3>
+                <button class="synthesis-modal-close" id="synthesis-modal-close">&times;</button>
+            </div>
+            <div class="synthesis-modal-content" id="synthesis-modal-content">
+                <!-- Synthesis content will be inserted here -->
+            </div>
+            <div class="synthesis-modal-footer">
+                <button class="btn btn-primary" id="synthesis-modal-done">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/anatomy-chat.js') }}"></script>
+    {% endif %}
+
+    <!-- Instructor Feedback Section -->
+    {% if submission.instructor_feedback %}
+        <section class="feedback-section instructor-feedback">
+            <h2>Instructor Feedback</h2>
+            <div class="result-badge {% if submission.instructor_feedback.passed %}result-passed{% else %}result-failed{% endif %}">
+                {% if submission.instructor_feedback.passed %}
+                    Passed!
+                {% else %}
+                    Needs More Work
+                {% endif %}
+            </div>
+            <div class="feedback-content markdown-content">
+                {{ submission.instructor_feedback.comment | markdown }}
+            </div>
+            <small class="feedback-timestamp">
+                Reviewed: {{ submission.instructor_feedback.created_at.strftime('%B %d, %Y at %H:%M') }}
+            </small>
+        </section>
+
+        {% if not submission.instructor_feedback.passed %}
+        <section class="schedule-followup-section">
+            <h2>Need Help?</h2>
+            <p>Schedule a session to discuss the feedback and get help with improvements.</p>
+            <a href="{{ url_for('scheduling.book', submission_id=submission.id) }}"
+               class="btn btn-primary">Schedule a Session</a>
+        </section>
+        {% endif %}
+    {% endif %}
+
+    <div class="action-buttons">
+        <a href="{{ url_for('modules.goal_detail', module_id=submission.goal.module_id, goal_id=submission.goal_id) }}"
+           class="btn btn-secondary">Back to Challenge</a>
+        <a href="{{ url_for('auth.account') }}" class="btn btn-secondary">View All Submissions</a>
+    </div>
+</div>
+{% endblock %}

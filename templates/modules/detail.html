@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module.title }} - Code Dojo{% endblock %}
+
+{% block content %}
+<div class="module-detail">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('home') }}">Home</a> &raquo;
+        <span>{{ module.title }}</span>
+    </nav>
+
+    <header class="module-header">
+        <h1>{{ module.title }}</h1>
+        <p class="module-description">{{ module.description }}</p>
+    </header>
+
+    <section class="goals-list">
+        <h2>Learning Goals</h2>
+        {% if goals %}
+            <div class="goals-grid">
+                {% for goal in goals %}
+                    <div class="goal-card">
+                        <div class="goal-number">{{ loop.index }}</div>
+                        <div class="goal-content">
+                            <h3>{{ goal.title }}</h3>
+                            <a href="{{ url_for('modules.goal_detail', module_id=module.id, goal_id=goal.id) }}"
+                               class="btn btn-primary">Start</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state">No learning goals available for this module yet.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
