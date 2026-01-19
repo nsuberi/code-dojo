@@ -1,0 +1,17 @@
+{
+  "name": "arch-pr-analyzer",
+  "version": "0.1.0",
+  "description": "Architectural analysis plugin for pull requests - visualizes codebase architecture changes with multi-granularity reports and diagrams",
+  "author": {
+    "name": "Nathan Suberi",
+    "email": "nathan@example.com"
+  },
+  "keywords": [
+    "architecture",
+    "pull-request",
+    "analysis",
+    "visualization",
+    "code-review",
+    "diagrams"
+  ]
+}

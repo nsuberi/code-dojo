@@ -1,0 +1,19 @@
+# Local settings files with tokens
+.claude/*.local.md
+
+# Analysis output
+.claude/analyses/
+
+# Node modules (if any local testing)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
