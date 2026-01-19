@@ -1,5 +1,6 @@
 """Learning goal model."""
 
+import json
 from models import db
 
 
@@ -16,8 +17,29 @@ class LearningGoal(db.Model):
     starter_repo = db.Column(db.String(500))  # GitHub repo URL for diff comparison
     order = db.Column(db.Integer, default=0)
 
+    # Prerequisite and progression tracking (Section 13)
+    prerequisites_json = db.Column(db.Text)  # [goal_id, goal_id, ...]
+    difficulty_level = db.Column(db.Integer, default=1)  # 1-5
+    category_tags_json = db.Column(db.Text)  # ["auth", "api", "security"]
+
     # Relationships
     submissions = db.relationship('Submission', backref='goal', lazy='dynamic')
+
+    def get_prerequisites(self):
+        """Parse and return prerequisite goal IDs."""
+        return json.loads(self.prerequisites_json) if self.prerequisites_json else []
+
+    def set_prerequisites(self, goal_ids):
+        """Set prerequisites from a list of goal IDs."""
+        self.prerequisites_json = json.dumps(goal_ids)
+
+    def get_category_tags(self):
+        """Parse and return category tags."""
+        return json.loads(self.category_tags_json) if self.category_tags_json else []
+
+    def set_category_tags(self, tags_list):
+        """Set category tags from a list."""
+        self.category_tags_json = json.dumps(tags_list)
 
     def to_dict(self):
         """Convert to dictionary."""
@@ -29,6 +51,9 @@ class LearningGoal(db.Model):
             'challenge_md': self.challenge_md,
             'starter_repo': self.starter_repo,
             'order': self.order,
+            'prerequisites': self.get_prerequisites(),
+            'difficulty_level': self.difficulty_level,
+            'category_tags': self.get_category_tags(),
         }
 
     def __repr__(self):

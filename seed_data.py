@@ -20,9 +20,10 @@ from models.module import LearningModule
 from models.goal import LearningGoal
 from models.anatomy_topic import AnatomyTopic
 from models.core_learning_goal import CoreLearningGoal
+from models.challenge_rubric import ChallengeRubric
 
 
-# Challenge description for the API Auth challenge
+# Challenge description for the API Auth challenge (Updated Section 1)
 API_AUTH_CHALLENGE = """
 ## Challenge: Add API Authentication
 
@@ -34,9 +35,10 @@ Add authentication to protect write operations (POST, PUT, DELETE) while keeping
 
 ### Requirements
 
-1. **Choose an approach** - You can use either:
+1. **Choose an approach** - You can use any of these:
    - **API Key Authentication** - Using an `X-API-Key` header
    - **HTTP Basic Authentication** - Using `Authorization: Basic` header
+   - **JWT (JSON Web Token)** - Using `Authorization: Bearer` header
 
 2. **Protect write operations**:
    - POST `/api/snippets` (create)
@@ -66,6 +68,8 @@ Add authentication to protect write operations (POST, PUT, DELETE) while keeping
 - Consider using `functools.wraps` for your decorator
 - For API keys, `secrets.token_hex(32)` generates secure random keys
 - For Basic Auth, werkzeug has password hashing utilities
+- For JWT, consider using PyJWT library with HS256 signing
+- Each approach has different tradeoffs (stateless vs simple, etc.)
 
 ### Success Criteria
 
@@ -74,6 +78,135 @@ Add authentication to protect write operations (POST, PUT, DELETE) while keeping
 - Invalid credentials return 401 with helpful message
 - Valid credentials allow write operations
 """
+
+# Second learning goal: Claude API + LangSmith (Section 14)
+CLAUDE_API_CHALLENGE = """
+## Challenge: Build an AI-Powered Flask Endpoint
+
+Create a Flask API endpoint that integrates with the Claude LLM API and
+captures all interactions in LangSmith for observability.
+
+### Your Task
+
+Build a `/api/ask` endpoint that:
+1. Accepts a question in the request body
+2. Sends it to Claude for a response
+3. Returns the AI-generated answer
+4. Traces the entire interaction in LangSmith
+
+### Requirements
+
+1. **Choose an implementation approach**:
+   - **Direct Anthropic SDK** - Using the official `anthropic` Python package
+   - **LangChain Integration** - Using LangChain's ChatAnthropic wrapper
+   - **Custom HTTP Client** - Using `requests` or `httpx` directly
+
+2. **Implement proper error handling**:
+   - Handle API rate limits gracefully
+   - Return meaningful error messages
+   - Log errors for debugging
+
+3. **Add LangSmith tracing**:
+   - Trace all LLM calls
+   - Include metadata (model, tokens, latency)
+   - Support trace grouping by session
+
+4. **Environment configuration**:
+   - API keys from environment variables
+   - Configurable model selection
+   - Tracing can be enabled/disabled
+
+### Getting Started
+
+1. Fork the starter repository
+2. Set up your Anthropic and LangSmith API keys
+3. Implement your solution
+4. Submit your branch
+
+### Hints
+
+- For Anthropic SDK: `pip install anthropic`
+- For LangChain: `pip install langchain langchain-anthropic`
+- LangSmith tracing can be automatic with LangChain or manual with `@traceable`
+- Consider using `LANGCHAIN_TRACING_V2=true` environment variable
+
+### Success Criteria
+
+- Endpoint returns Claude's response correctly
+- All calls appear in LangSmith dashboard
+- Errors are handled gracefully
+- No API keys in source code
+"""
+
+# Multi-approach rubric for Claude API challenge (Section 14)
+CLAUDE_API_RUBRIC = {
+    "version": "1.0",
+    "valid_approaches": [
+        {
+            "id": "anthropic_sdk",
+            "name": "Direct Anthropic SDK",
+            "detection_patterns": ["from anthropic import", "Anthropic()", "client.messages.create"],
+            "tradeoffs": {
+                "pros": ["Official SDK", "Type hints", "Minimal dependencies", "Direct control"],
+                "cons": ["Manual tracing setup", "No built-in retries", "Less abstraction"]
+            }
+        },
+        {
+            "id": "langchain",
+            "name": "LangChain Integration",
+            "detection_patterns": ["from langchain", "ChatAnthropic", "invoke(", "langchain_anthropic"],
+            "tradeoffs": {
+                "pros": ["Built-in LangSmith integration", "Automatic tracing", "Rich ecosystem"],
+                "cons": ["Heavier dependency", "Abstraction overhead", "Versioning complexity"]
+            }
+        },
+        {
+            "id": "http_client",
+            "name": "Custom HTTP Client",
+            "detection_patterns": ["requests.post", "httpx", "api.anthropic.com", "messages"],
+            "tradeoffs": {
+                "pros": ["Full control", "Minimal dependencies", "Educational value"],
+                "cons": ["Manual everything", "Error-prone", "No SDK benefits"]
+            }
+        }
+    ],
+    "universal_criteria": [
+        {
+            "id": "endpoint_works",
+            "criterion": "POST /api/ask returns Claude's response",
+            "pass_indicators": ["Returns JSON with 'response' field", "Status 200 on success"]
+        },
+        {
+            "id": "error_handling",
+            "criterion": "Handles API errors gracefully",
+            "pass_indicators": ["Rate limit handling", "Timeout handling", "Meaningful error messages"]
+        },
+        {
+            "id": "langsmith_tracing",
+            "criterion": "Traces appear in LangSmith",
+            "pass_indicators": ["@traceable decorator or equivalent", "Trace metadata included"]
+        },
+        {
+            "id": "env_config",
+            "criterion": "API keys from environment",
+            "pass_indicators": ["os.getenv usage", "No hardcoded keys"]
+        }
+    ],
+    "approach_specific_criteria": {
+        "anthropic_sdk": [
+            {"id": "sdk_init", "criterion": "Properly initializes Anthropic client"},
+            {"id": "manual_trace", "criterion": "Implements manual LangSmith tracing"}
+        ],
+        "langchain": [
+            {"id": "chain_setup", "criterion": "Properly configures LangChain chain"},
+            {"id": "auto_trace", "criterion": "Leverages automatic LangSmith integration"}
+        ],
+        "http_client": [
+            {"id": "headers", "criterion": "Sets correct headers (x-api-key, content-type)"},
+            {"id": "response_parse", "criterion": "Correctly parses API response structure"}
+        ]
+    }
+}
 
 
 def seed_database():
@@ -97,17 +230,34 @@ def seed_database():
     db.session.add(module)
     db.session.flush()  # Get the module ID
 
-    # Create the learning goal
+    # Create the learning goal (Section 10: Updated title)
     goal = LearningGoal(
         module_id=module.id,
-        title="Add API Key Authentication",
+        title="Add authentication to a Flask API",
         video_url="https://www.youtube.com/watch?v=o-pMCoVPN_k",
         challenge_md=API_AUTH_CHALLENGE,
         starter_repo="https://github.com/nsuberi/snippet-manager-starter",
-        order=1
+        order=1,
+        difficulty_level=2,
+        category_tags_json=json.dumps(["auth", "api", "security", "flask"])
     )
     db.session.add(goal)
     db.session.flush()  # Get the goal ID
+
+    # Create second learning goal (Section 14)
+    goal2 = LearningGoal(
+        module_id=module.id,
+        title="Build an AI-Powered Flask Endpoint with Observability",
+        video_url="",  # No video yet
+        challenge_md=CLAUDE_API_CHALLENGE,
+        starter_repo="",  # To be created
+        order=2,
+        difficulty_level=3,
+        prerequisites_json=json.dumps([goal.id]),  # Requires first goal
+        category_tags_json=json.dumps(["ai", "api", "observability", "claude", "langsmith"])
+    )
+    db.session.add(goal2)
+    db.session.flush()
 
     print("Creating anatomy topics...")
 
@@ -500,8 +650,352 @@ def seed_core_learning_goals():
         )
         db.session.add(core_goal)
 
+    total_created = len(core_goals)
+
+    # Add core learning goals for Claude API Challenge (Section 14)
+    goals = LearningGoal.query.order_by(LearningGoal.order).all()
+    if len(goals) > 1:
+        goal2 = goals[1]
+        print(f"Adding core learning goals to: {goal2.title}")
+
+        claude_api_core_goals = [
+            {
+                'title': 'LLM API Integration',
+                'description': 'Understanding how to call the Claude API from Python',
+                'gem_color': 'blue',
+                'certification_days': 90,
+                'order_index': 1,
+                'rubric': {
+                    'items': [
+                        {
+                            'id': 'client_setup',
+                            'criterion': 'Properly initialize the API client',
+                            'pass_indicators': [
+                                'Uses Anthropic SDK or makes HTTP requests correctly',
+                                'API key loaded from environment variables',
+                                'Client is reusable across requests'
+                            ],
+                            'socratic_hints': [
+                                'How did you configure the Anthropic client in your code?',
+                                'Where does your API key come from?',
+                                'What happens if someone runs your code without setting up the key?'
+                            ]
+                        },
+                        {
+                            'id': 'message_format',
+                            'criterion': 'Understand Claude message format',
+                            'pass_indicators': [
+                                'Knows the messages array structure',
+                                'Understands role (user/assistant) concept',
+                                'Can explain max_tokens and model parameters'
+                            ],
+                            'socratic_hints': [
+                                'What does the messages array look like when you call Claude?',
+                                'Why do messages have roles?',
+                                'What happens if you set max_tokens too low?'
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                'title': 'Error Handling for External APIs',
+                'description': 'Gracefully handling failures when calling external services',
+                'gem_color': 'purple',
+                'certification_days': 90,
+                'order_index': 2,
+                'rubric': {
+                    'items': [
+                        {
+                            'id': 'rate_limits',
+                            'criterion': 'Handle rate limiting gracefully',
+                            'pass_indicators': [
+                                'Catches rate limit errors (429 status)',
+                                'Implements retry logic or backoff',
+                                'Returns helpful error to user'
+                            ],
+                            'socratic_hints': [
+                                'What happens if too many requests hit Claude at once?',
+                                'How does your code respond to a 429 error?',
+                                'What does the user see when rate limited?'
+                            ]
+                        },
+                        {
+                            'id': 'timeout_handling',
+                            'criterion': 'Handle timeouts appropriately',
+                            'pass_indicators': [
+                                'Sets appropriate timeout values',
+                                'Catches timeout exceptions',
+                                'Does not hang indefinitely'
+                            ],
+                            'socratic_hints': [
+                                'What if Claude takes a long time to respond?',
+                                'How long should your endpoint wait?',
+                                'What happens on a timeout?'
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                'title': 'LangSmith Observability',
+                'description': 'Adding tracing and monitoring to LLM calls',
+                'gem_color': 'green',
+                'certification_days': 90,
+                'order_index': 3,
+                'rubric': {
+                    'items': [
+                        {
+                            'id': 'trace_setup',
+                            'criterion': 'Configure LangSmith tracing',
+                            'pass_indicators': [
+                                'Environment variables set correctly',
+                                'Uses @traceable or automatic LangChain tracing',
+                                'Traces visible in LangSmith dashboard'
+                            ],
+                            'socratic_hints': [
+                                'What environment variables does LangSmith need?',
+                                'How do you mark a function for tracing?',
+                                'Can you see your calls in the LangSmith dashboard?'
+                            ]
+                        },
+                        {
+                            'id': 'trace_metadata',
+                            'criterion': 'Include useful metadata in traces',
+                            'pass_indicators': [
+                                'Includes model name and version',
+                                'Tracks token usage',
+                                'Groups related calls together'
+                            ],
+                            'socratic_hints': [
+                                'What information appears in your traces?',
+                                'How can you tell which model was used?',
+                                'Can you track how many tokens each call used?'
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                'title': 'Flask API Design',
+                'description': 'Building a well-designed REST endpoint',
+                'gem_color': 'orange',
+                'certification_days': 90,
+                'order_index': 4,
+                'rubric': {
+                    'items': [
+                        {
+                            'id': 'request_validation',
+                            'criterion': 'Validate incoming requests',
+                            'pass_indicators': [
+                                'Checks for required fields',
+                                'Returns 400 for invalid requests',
+                                'Error messages explain what is wrong'
+                            ],
+                            'socratic_hints': [
+                                'What happens if someone sends an empty request?',
+                                'How do you validate the question field?',
+                                'What status code do you return for bad input?'
+                            ]
+                        },
+                        {
+                            'id': 'response_format',
+                            'criterion': 'Return consistent JSON responses',
+                            'pass_indicators': [
+                                'Success responses have consistent structure',
+                                'Error responses also follow a pattern',
+                                'Includes appropriate HTTP status codes'
+                            ],
+                            'socratic_hints': [
+                                'What does a successful response look like?',
+                                'What does an error response look like?',
+                                'Are they consistent with each other?'
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                'title': 'Environment Configuration',
+                'description': 'Securely managing secrets and configuration',
+                'gem_color': 'red',
+                'certification_days': 60,
+                'order_index': 5,
+                'rubric': {
+                    'items': [
+                        {
+                            'id': 'secrets_management',
+                            'criterion': 'Keep secrets out of code',
+                            'pass_indicators': [
+                                'API keys loaded from environment',
+                                'No hardcoded secrets in source',
+                                '.env file is gitignored'
+                            ],
+                            'socratic_hints': [
+                                'Where do your API keys live?',
+                                'What would happen if you committed your .env file?',
+                                'How does someone else run your code?'
+                            ]
+                        },
+                        {
+                            'id': 'config_flexibility',
+                            'criterion': 'Make configuration flexible',
+                            'pass_indicators': [
+                                'Model selection is configurable',
+                                'Tracing can be toggled on/off',
+                                'Reasonable defaults provided'
+                            ],
+                            'socratic_hints': [
+                                'Can you switch models without changing code?',
+                                'Can you disable LangSmith tracing for local dev?',
+                                'What defaults do you use when vars are not set?'
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+
+        for goal_data in claude_api_core_goals:
+            core_goal = CoreLearningGoal(
+                learning_goal_id=goal2.id,
+                title=goal_data['title'],
+                description=goal_data['description'],
+                rubric_json=json.dumps(goal_data['rubric']),
+                order_index=goal_data['order_index'],
+                gem_color=goal_data['gem_color'],
+                certification_days=goal_data['certification_days']
+            )
+            db.session.add(core_goal)
+
+        total_created += len(claude_api_core_goals)
+
     db.session.commit()
-    print(f"Created {len(core_goals)} core learning goals with rubrics!")
+    print(f"Created {total_created} core learning goals with rubrics!")
+
+
+def seed_challenge_rubric():
+    """Add multi-approach challenge rubrics for all challenges (Section 7, 14)."""
+    print("Seeding challenge rubrics...")
+
+    # Get all learning goals
+    goals = LearningGoal.query.order_by(LearningGoal.order).all()
+    if not goals:
+        print("No learning goals found. Run seed_database() first.")
+        return
+
+    created_count = 0
+
+    # First goal: API Auth challenge
+    goal = goals[0]
+    existing = ChallengeRubric.query.filter_by(learning_goal_id=goal.id).first()
+    if existing:
+        print(f"Rubric for '{goal.title}' already exists. Skipping.")
+    else:
+        print(f"Adding multi-approach rubric to: {goal.title}")
+
+        # Multi-approach rubric JSON (Section 2.2)
+        rubric_data = {
+            "version": "1.0",
+            "valid_approaches": [
+                {
+                    "id": "api_key",
+                    "name": "API Key Authentication",
+                    "detection_patterns": ["X-API-Key", "x-api-key", "API_KEY"],
+                    "tradeoffs": {
+                        "pros": ["Simple to implement", "Easy to revoke", "No expiration handling needed"],
+                        "cons": ["Must be stored securely", "No built-in expiration", "Less suitable for user-facing apps"]
+                    }
+                },
+                {
+                    "id": "basic_auth",
+                    "name": "HTTP Basic Authentication",
+                    "detection_patterns": ["Authorization: Basic", "base64", "werkzeug.security"],
+                    "tradeoffs": {
+                        "pros": ["Standard HTTP mechanism", "Built-in browser support", "Simple for development"],
+                        "cons": ["Credentials sent with every request", "Must use HTTPS", "No built-in session management"]
+                    }
+                },
+                {
+                    "id": "jwt",
+                    "name": "JWT Bearer Token",
+                    "detection_patterns": ["Authorization: Bearer", "PyJWT", "jwt.encode", "jwt.decode"],
+                    "tradeoffs": {
+                        "pros": ["Stateless", "Self-contained claims", "Standard for modern APIs", "Built-in expiration"],
+                        "cons": ["Larger token size", "Cannot revoke without blacklist", "More complex implementation"]
+                    }
+                }
+            ],
+            "universal_criteria": [
+                {
+                    "id": "protects_write_ops",
+                    "criterion": "Protects POST, PUT, DELETE endpoints",
+                    "pass_indicators": ["Decorator applied to write routes", "Returns 401 without valid auth"]
+                },
+                {
+                    "id": "allows_read_ops",
+                    "criterion": "GET endpoints remain public",
+                    "pass_indicators": ["No auth decorator on GET routes", "GET requests succeed without credentials"]
+                },
+                {
+                    "id": "proper_401_response",
+                    "criterion": "Returns 401 with JSON error body",
+                    "pass_indicators": ["Status code 401", "JSON response with error message"]
+                },
+                {
+                    "id": "uses_decorator_pattern",
+                    "criterion": "Uses decorator pattern for auth",
+                    "pass_indicators": ["Defines auth decorator function", "Uses functools.wraps"]
+                },
+                {
+                    "id": "secrets_not_hardcoded",
+                    "criterion": "Secrets loaded from environment",
+                    "pass_indicators": ["Uses os.getenv or os.environ", "No literal keys in source"]
+                }
+            ],
+            "approach_specific_criteria": {
+                "api_key": [
+                    {"id": "header_extraction", "criterion": "Extracts key from X-API-Key header"},
+                    {"id": "secure_comparison", "criterion": "Uses constant-time comparison (secrets.compare_digest)"}
+                ],
+                "basic_auth": [
+                    {"id": "base64_decode", "criterion": "Properly decodes Base64 credentials"},
+                    {"id": "password_hash", "criterion": "Compares against hashed password, not plaintext"}
+                ],
+                "jwt": [
+                    {"id": "token_decode", "criterion": "Properly decodes and verifies JWT signature"},
+                    {"id": "expiration_check", "criterion": "Validates token expiration (exp claim)"},
+                    {"id": "claims_usage", "criterion": "Extracts and uses claims from token payload"}
+                ]
+            }
+        }
+
+        rubric = ChallengeRubric(
+            learning_goal_id=goal.id,
+            title="API Authentication Multi-Approach Rubric",
+            rubric_json=json.dumps(rubric_data)
+        )
+        db.session.add(rubric)
+        created_count += 1
+
+    # Second goal: Claude API challenge (if exists)
+    if len(goals) > 1:
+        goal2 = goals[1]
+        existing2 = ChallengeRubric.query.filter_by(learning_goal_id=goal2.id).first()
+        if existing2:
+            print(f"Rubric for '{goal2.title}' already exists. Skipping.")
+        else:
+            print(f"Adding multi-approach rubric to: {goal2.title}")
+            rubric2 = ChallengeRubric(
+                learning_goal_id=goal2.id,
+                title="Claude API Integration Multi-Approach Rubric",
+                rubric_json=json.dumps(CLAUDE_API_RUBRIC)
+            )
+            db.session.add(rubric2)
+            created_count += 1
+
+    db.session.commit()
+    print(f"Created {created_count} challenge rubric(s) successfully!")
 
 
 if __name__ == '__main__':
@@ -512,5 +1006,12 @@ if __name__ == '__main__':
             seed_anatomy_topics()
         elif len(sys.argv) > 1 and sys.argv[1] == '--rubrics':
             seed_core_learning_goals()
+        elif len(sys.argv) > 1 and sys.argv[1] == '--challenge-rubric':
+            seed_challenge_rubric()
+        elif len(sys.argv) > 1 and sys.argv[1] == '--all':
+            # Seed all data including rubrics
+            seed_database()
+            seed_core_learning_goals()
+            seed_challenge_rubric()
         else:
             seed_database()

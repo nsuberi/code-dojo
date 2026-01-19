@@ -5,17 +5,34 @@ from anthropic import Anthropic
 from config import Config
 
 
-def generate_ai_feedback(challenge_description, diff_content):
+def generate_ai_feedback(challenge_description, diff_content, challenge_rubric=None, submission_id=None):
     """
     Generate AI feedback for a code submission using Claude.
+
+    Uses agentic review when a challenge rubric is available for multi-approach
+    evaluation with structured feedback.
 
     Args:
         challenge_description: The challenge/task description in markdown
         diff_content: The code diff showing student's changes
+        challenge_rubric: Optional ChallengeRubric object for agentic review
+        submission_id: Optional submission ID for tracing
 
     Returns:
-        String containing the AI feedback
+        If challenge_rubric provided: dict with content, detected_approach, evaluation, etc.
+        Otherwise: String containing the AI feedback
     """
+    # Use agentic review when rubric is available (Section 4)
+    if challenge_rubric:
+        from services.agentic_review import AgenticReviewService
+        service = AgenticReviewService(submission_id)
+        return service.run_full_review(
+            challenge_md=challenge_description,
+            diff_content=diff_content,
+            rubric=challenge_rubric.get_rubric()
+        )
+
+    # Fallback to simple 4-point feedback for challenges without rubrics
     api_key = Config.ANTHROPIC_API_KEY
 
     if not api_key:

@@ -66,13 +66,13 @@ class GemsUI {
         const gemsDisplay = this.progress.map(p => this.getGemIcon(p.progress)).join(' ');
         const validCount = this.engagement?.valid_count || 0;
         const totalCount = this.engagement?.total || this.progress.length;
-        const neededForInstructor = Math.max(0, Math.ceil(totalCount / 2) - validCount);
+        const neededForSensei = Math.max(0, Math.ceil(totalCount / 2) - validCount);
 
         const html = `
             <div class="mastery-indicator">
                 <span class="mastery-label">MASTERY</span>
                 <span class="gems-display">${gemsDisplay}</span>
-                <span class="gems-count">(${validCount}/${totalCount}${neededForInstructor > 0 ? ` - need ${neededForInstructor} more for instructor` : ' - instructor unlocked!'})</span>
+                <span class="gems-count">(${validCount}/${totalCount}${neededForSensei > 0 ? ` - need ${neededForSensei} more for Sensei` : ' - Sensei unlocked!'})</span>
             </div>
 
             <div class="topics-grid">
@@ -85,9 +85,9 @@ class GemsUI {
                 <span class="stat-expired">${this.engagement?.expired || 0} expired</span>
             </div>
 
-            ${this.engagement?.can_request_instructor ? `
-                <div class="instructor-unlock-notice">
-                    ✨ <strong>Instructor feedback unlocked!</strong> You can now request a review.
+            ${this.engagement?.can_request_sensei ? `
+                <div class="sensei-unlock-notice">
+                    ✨ <strong>Sensei feedback unlocked!</strong> You can now request a review.
                 </div>
             ` : ''}
         `;

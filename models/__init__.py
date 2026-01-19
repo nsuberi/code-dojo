@@ -19,3 +19,7 @@ from models.goal_progress import GoalProgress
 from models.agent_session import AgentSession, AgentMessage
 from models.challenge_plan import ChallengePlan
 from models.voice_input_metrics import VoiceInputMetrics
+
+# Enhanced feedback and evaluation models (Section 2.1, 12)
+from models.challenge_rubric import ChallengeRubric
+from models.sensei_evaluation import SenseiEvaluation

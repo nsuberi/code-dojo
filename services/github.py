@@ -33,7 +33,8 @@ def get_github_headers():
     }
     try:
         token = current_app.config.get('GITHUB_TOKEN')
-        if token:
+        # Only use token if it's set and not a placeholder value
+        if token and not token.startswith('your_') and len(token) > 20:
             headers['Authorization'] = f'token {token}'
     except RuntimeError:
         # Not in application context

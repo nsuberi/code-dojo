@@ -8,6 +8,7 @@ from models.goal import LearningGoal
 from models.ai_feedback import AIFeedback
 from models.core_learning_goal import CoreLearningGoal
 from models.goal_progress import GoalProgress
+from models.challenge_rubric import ChallengeRubric
 from services.github import fetch_github_diff
 from services.ai_feedback import generate_ai_feedback
 
@@ -78,16 +79,34 @@ def create_submission():
     try:
         diff_content = fetch_github_diff(goal.starter_repo, repo_url, branch)
 
+        # Get challenge rubric if available for agentic review (Section 3)
+        challenge_rubric = ChallengeRubric.query.filter_by(learning_goal_id=goal.id).first()
+
         if diff_content:
-            ai_content = generate_ai_feedback(
+            ai_result = generate_ai_feedback(
                 challenge_description=goal.challenge_md,
-                diff_content=diff_content
+                diff_content=diff_content,
+                challenge_rubric=challenge_rubric,
+                submission_id=submission.id
             )
 
-            ai_feedback = AIFeedback(
-                submission_id=submission.id,
-                content=ai_content
-            )
+            # Handle dict response from agentic review vs string from simple review
+            if isinstance(ai_result, dict):
+                import json
+                ai_feedback = AIFeedback(
+                    submission_id=submission.id,
+                    content=ai_result.get('content', ''),
+                    detected_approach=ai_result.get('detected_approach'),
+                    evaluation_json=json.dumps(ai_result.get('evaluation')) if ai_result.get('evaluation') else None,
+                    alternative_approaches_json=json.dumps(ai_result.get('alternatives')) if ai_result.get('alternatives') else None,
+                    line_references_json=json.dumps(ai_result.get('line_references')) if ai_result.get('line_references') else None
+                )
+            else:
+                ai_feedback = AIFeedback(
+                    submission_id=submission.id,
+                    content=ai_result
+                )
+
             db.session.add(ai_feedback)
             submission.status = 'ai_complete'
             db.session.commit()
@@ -98,7 +117,7 @@ def create_submission():
     except Exception as e:
         flash(f'Error processing submission: {str(e)}', 'danger')
 
-    return redirect(url_for('submissions.view_submission', submission_id=submission.id))
+    return redirect(url_for('modules.goal_detail', module_id=goal.module_id, goal_id=goal.id) + '#tab-review')
 
 
 @submissions_bp.route('/<int:submission_id>')
@@ -134,7 +153,7 @@ def request_instructor_feedback(submission_id):
     can_unlock, stats = check_instructor_unlock_threshold(current_user.id, submission.goal_id)
 
     if not can_unlock and not force_skip:
-        flash(f'Please explore at least {stats["needed"]} more concepts with the Socratic Sensei before requesting instructor feedback. '
+        flash(f'Please explore at least {stats["needed"]} more concepts with the Digi-Trainer before requesting Sensei feedback. '
               f'(Current progress: {stats["valid"]}/{stats["total"]})', 'warning')
         return redirect(url_for('submissions.view_submission', submission_id=submission_id))
 
@@ -164,3 +183,29 @@ def check_instructor_unlock(submission_id):
         'can_unlock': can_unlock,
         'stats': stats
     })
+
+
+@submissions_bp.route('/<int:submission_id>/diff')
+@login_required
+def get_submission_diff(submission_id):
+    """Get the diff content for a submission (API endpoint)."""
+    submission = Submission.query.get_or_404(submission_id)
+
+    # Only allow owner or instructors to view
+    if submission.user_id != current_user.id and not current_user.is_instructor:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    try:
+        diff_content = fetch_github_diff(
+            submission.goal.starter_repo,
+            submission.repo_url,
+            submission.branch
+        )
+
+        if diff_content:
+            return jsonify({'diff': diff_content})
+        else:
+            return jsonify({'error': 'Could not fetch diff from GitHub'}), 400
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
