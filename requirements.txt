@@ -8,3 +8,15 @@ python-dotenv>=1.0.0
 markdown>=3.5.0
 pygments>=2.17.0
 markupsafe>=2.1.0
+
+# LangChain/LangSmith for agent orchestration and tracing
+langchain>=0.1.0
+langchain-anthropic>=0.1.0
+langgraph>=0.0.20
+langsmith>=0.0.77
+
+# OpenAI for Whisper transcription
+openai>=1.0.0
+
+# Testing
+pytest>=7.0.0

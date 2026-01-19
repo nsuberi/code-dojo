@@ -3,84 +3,1189 @@
 {% block title %}{{ goal.title }} - Code Dojo{% endblock %}
 
 {% block content %}
-<div class="goal-detail">
+<div class="challenge-page">
     <nav class="breadcrumb">
         <a href="{{ url_for('home') }}">Home</a> &raquo;
         <a href="{{ url_for('modules.module_detail', module_id=module.id) }}">{{ module.title }}</a> &raquo;
         <span>{{ goal.title }}</span>
     </nav>
 
-    <header class="goal-header">
+    <header class="challenge-header">
         <h1>{{ goal.title }}</h1>
+        <p class="challenge-subtitle">Complete the learning journey: Watch, Plan, Code, Submit</p>
     </header>
 
-    <div class="goal-content-grid">
-        <!-- Video Section -->
-        <section class="video-section">
-            <h2>Tutorial Video</h2>
-            {% if goal.video_url %}
-                <div class="video-container">
-                    <iframe
-                        src="{{ goal.video_url.replace('watch?v=', 'embed/') }}"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen>
-                    </iframe>
-                </div>
-            {% else %}
-                <p class="empty-state">No video available for this goal.</p>
-            {% endif %}
-        </section>
+    <!-- Workflow Progress Indicator -->
+    <div class="workflow-progress">
+        <div class="workflow-step" data-step="learn">
+            <div class="step-icon">1</div>
+            <span>Learn</span>
+        </div>
+        <div class="workflow-connector"></div>
+        <div class="workflow-step active" data-step="plan">
+            <div class="step-icon">2</div>
+            <span>Plan</span>
+        </div>
+        <div class="workflow-connector"></div>
+        <div class="workflow-step" data-step="challenge">
+            <div class="step-icon">3</div>
+            <span>Challenge</span>
+        </div>
+        <div class="workflow-connector"></div>
+        <div class="workflow-step" data-step="submit">
+            <div class="step-icon">4</div>
+            <span>Submit</span>
+        </div>
+    </div>
 
-        <!-- Challenge Description -->
-        <section class="challenge-section">
-            <h2>Challenge</h2>
-            <div class="challenge-content markdown-content">
-                {{ goal.challenge_md | markdown }}
+    <!-- Tab Navigation -->
+    <div class="challenge-tabs">
+        <button class="tab-btn" data-tab="learn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Learn
+        </button>
+        <button class="tab-btn active" data-tab="plan">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Plan Your Approach
+        </button>
+        <button class="tab-btn" data-tab="challenge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            Challenge
+        </button>
+        <button class="tab-btn" data-tab="submit">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13"></path>
+                <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+            </svg>
+            Submit
+        </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- LEARN TAB -->
+        <div class="tab-pane" id="tab-learn">
+            <section class="content-card">
+                <h2>Tutorial Video</h2>
+                {% if goal.video_url %}
+                    <div class="video-container">
+                        <iframe
+                            src="{{ goal.video_url.replace('watch?v=', 'embed/') }}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <p class="video-hint">Watch the tutorial to understand the concepts, then move to the Plan tab to build your approach.</p>
+                {% else %}
+                    <p class="empty-state">No video available for this challenge.</p>
+                {% endif %}
+                <div class="tab-navigation-hint">
+                    <button class="btn btn-primary" onclick="switchTab('plan')">
+                        Continue to Planning
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- PLAN TAB -->
+        <div class="tab-pane active" id="tab-plan">
+            <div class="planning-harness" id="planning-harness" data-goal-id="{{ goal.id }}">
+                <div class="planning-header">
+                    <div class="planning-header-content">
+                        <img src="{{ url_for('static', filename='images/sensei-avatar.png') }}" alt="Socratic Sensei" class="sensei-avatar" onerror="this.style.display='none'">
+                        <div>
+                            <h2>Plan Your Approach</h2>
+                            <p>Build your implementation plan with the Socratic Sensei before you start coding.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="planning-layout">
+                    <!-- Chat Panel -->
+                    <div class="planning-chat-panel">
+                        <div class="planning-messages" id="planning-messages">
+                            <div class="planning-welcome">
+                                <div class="sensei-message">
+                                    <p>Hello! I'm your Socratic Sensei. Let's build your implementation plan together.</p>
+                                    <p>Before you start coding, let's think through the key concepts you'll need to address. What's your initial approach to this challenge?</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="planning-input-area">
+                            <form id="planning-form" class="planning-input-form">
+                                <textarea
+                                    id="planning-input"
+                                    placeholder="Share your thoughts on how you'd approach this challenge..."
+                                    rows="3"
+                                ></textarea>
+                                <div class="planning-input-actions">
+                                    <button type="submit" class="btn btn-primary" id="send-planning-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                        </svg>
+                                        Send
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Plan Preview Panel -->
+                    <div class="planning-sidebar">
+                        <!-- Coverage Checkmarks -->
+                        <div class="coverage-card">
+                            <h3>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Coverage
+                                <span class="coverage-count" id="coverage-count">0/0</span>
+                            </h3>
+                            <div class="coverage-list" id="coverage-list">
+                                <!-- Populated by JavaScript -->
+                                <div class="coverage-loading">Loading concepts...</div>
+                            </div>
+                        </div>
+
+                        <!-- Plan Preview -->
+                        <div class="plan-preview-card">
+                            <div class="plan-preview-header">
+                                <h3>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    Your Plan
+                                </h3>
+                                <div class="plan-preview-actions">
+                                    <button class="btn btn-small" id="edit-plan-btn" title="Edit Plan">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="btn btn-small" id="generate-plan-btn" title="Generate Plan from Chat">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="plan-preview-content" id="plan-preview-content">
+                                <p class="empty-plan">Your plan will appear here as you discuss your approach with the Sensei.</p>
+                            </div>
+                        </div>
+
+                        <!-- Export Actions -->
+                        <div class="plan-export-actions">
+                            <button class="btn btn-secondary btn-block" id="export-plan-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Export Plan
+                            </button>
+                            <p class="export-hint">Copy your plan to use with Claude, Cursor, or other coding tools.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="planning-footer">
+                    <button class="btn btn-secondary" onclick="switchTab('challenge')">
+                        Skip to Challenge
+                    </button>
+                    <button class="btn btn-primary" onclick="switchTab('challenge')">
+                        I'm Ready to Code
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
             </div>
+        </div>
 
-            {% if goal.starter_repo %}
-                <div class="starter-repo">
-                    <h3>Starter Repository</h3>
-                    <p>Fork or clone this repository to get started:</p>
-                    <a href="{{ goal.starter_repo }}" target="_blank" class="repo-link">
-                        {{ goal.starter_repo }}
-                    </a>
+        <!-- CHALLENGE TAB -->
+        <div class="tab-pane" id="tab-challenge">
+            <section class="content-card">
+                <h2>Challenge Description</h2>
+                <div class="challenge-content markdown-content">
+                    {{ goal.challenge_md | markdown }}
                 </div>
-            {% endif %}
-        </section>
 
-        <!-- Submission Form -->
-        <section class="submission-section">
-            <h2>Submit Your Solution</h2>
-            {% if current_user.is_authenticated %}
-                <form method="POST" action="{{ url_for('submissions.create_submission') }}" class="submission-form">
-                    <input type="hidden" name="goal_id" value="{{ goal.id }}">
-
-                    <div class="form-group">
-                        <label for="repo_url">Your GitHub Repository URL</label>
-                        <input type="url" id="repo_url" name="repo_url" required
-                               placeholder="https://github.com/yourusername/your-repo">
-                        <small>Enter the full URL to your GitHub repository with your solution.</small>
+                {% if goal.starter_repo %}
+                    <div class="starter-repo">
+                        <h3>Starter Repository</h3>
+                        <p>Fork or clone this repository to get started:</p>
+                        <a href="{{ goal.starter_repo }}" target="_blank" class="repo-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                            {{ goal.starter_repo }}
+                        </a>
                     </div>
+                {% endif %}
 
-                    <div class="form-group">
-                        <label for="branch">Branch Name</label>
-                        <input type="text" id="branch" name="branch" value="main"
-                               placeholder="main">
-                        <small>The branch containing your solution (default: main).</small>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg">Submit for Review</button>
-                </form>
-            {% else %}
-                <div class="login-prompt">
-                    <p>Please log in to submit your solution.</p>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
-                    <a href="{{ url_for('auth.signup') }}" class="btn btn-secondary">Sign Up</a>
+                <div class="tab-navigation-hint">
+                    <button class="btn btn-primary" onclick="switchTab('submit')">
+                        Ready to Submit
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
                 </div>
-            {% endif %}
-        </section>
+            </section>
+        </div>
+
+        <!-- SUBMIT TAB -->
+        <div class="tab-pane" id="tab-submit">
+            <section class="content-card">
+                <h2>Submit Your Solution</h2>
+                {% if current_user.is_authenticated %}
+                    <p class="submit-intro">Ready to submit? Enter your GitHub repository URL and branch below.</p>
+                    <form method="POST" action="{{ url_for('submissions.create_submission') }}" class="submission-form">
+                        <input type="hidden" name="goal_id" value="{{ goal.id }}">
+
+                        <div class="form-group">
+                            <label for="repo_url">Your GitHub Repository URL</label>
+                            <input type="url" id="repo_url" name="repo_url" required
+                                   placeholder="https://github.com/yourusername/your-repo">
+                            <small>Enter the full URL to your GitHub repository with your solution.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="branch">Branch Name</label>
+                            <input type="text" id="branch" name="branch" value="main"
+                                   placeholder="main">
+                            <small>The branch containing your solution (default: main).</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13"></path>
+                                <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                            </svg>
+                            Submit for Review
+                        </button>
+                    </form>
+                {% else %}
+                    <div class="login-prompt">
+                        <p>Please log in to submit your solution.</p>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
+                        <a href="{{ url_for('auth.signup') }}" class="btn btn-secondary">Sign Up</a>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
     </div>
 </div>
+
+<!-- Plan Editor Modal -->
+<div class="modal-overlay" id="plan-editor-modal">
+    <div class="plan-editor-modal">
+        <div class="plan-editor-header">
+            <h3>Edit Your Plan</h3>
+            <button class="modal-close-btn" onclick="closePlanEditor()">&times;</button>
+        </div>
+        <div class="plan-editor-content">
+            <textarea id="plan-editor-textarea" placeholder="Write your implementation plan here..."></textarea>
+        </div>
+        <div class="plan-editor-footer">
+            <button class="btn btn-secondary" onclick="closePlanEditor()">Cancel</button>
+            <button class="btn btn-primary" onclick="savePlanEdit()">Save Plan</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Challenge Page Specific Styles */
+.challenge-page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.challenge-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.challenge-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.challenge-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Workflow Progress */
+.workflow-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+}
+
+.workflow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.workflow-step .step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.workflow-step.active .step-icon,
+.workflow-step.completed .step-icon {
+    background: var(--primary-color);
+    color: white;
+}
+
+.workflow-step.completed .step-icon {
+    background: var(--success-color);
+}
+
+.workflow-step span {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.workflow-step.active span {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.workflow-connector {
+    width: 60px;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 0.5rem;
+}
+
+/* Tab Navigation */
+.challenge-tabs {
+    display: flex;
+    gap: 0.25rem;
+    background: #f1f5f9;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--text-primary);
+}
+
+.tab-btn.active {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: var(--shadow);
+}
+
+.tab-btn svg {
+    flex-shrink: 0;
+}
+
+/* Tab Content */
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.content-card {
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+}
+
+.content-card h2 {
+    margin-bottom: 1.5rem;
+}
+
+.video-hint {
+    margin-top: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.tab-navigation-hint {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+}
+
+.tab-navigation-hint .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Planning Harness */
+.planning-harness {
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.planning-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+}
+
+.planning-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sensei-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.planning-header h2 {
+    margin: 0 0 0.25rem 0;
+}
+
+.planning-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.planning-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    min-height: 500px;
+}
+
+/* Chat Panel */
+.planning-chat-panel {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+}
+
+.planning-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    background: #f8fafc;
+}
+
+.planning-welcome {
+    margin-bottom: 1rem;
+}
+
+.sensei-message {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    border-top-left-radius: 0.25rem;
+    padding: 1rem 1.25rem;
+    max-width: 85%;
+}
+
+.sensei-message p {
+    margin: 0 0 0.75rem 0;
+}
+
+.sensei-message p:last-child {
+    margin-bottom: 0;
+}
+
+.user-message {
+    background: var(--primary-color);
+    color: white;
+    border-radius: 1rem;
+    border-top-right-radius: 0.25rem;
+    padding: 1rem 1.25rem;
+    max-width: 85%;
+    margin-left: auto;
+    margin-top: 1rem;
+}
+
+.planning-input-area {
+    padding: 1rem 1.5rem;
+    background: white;
+    border-top: 1px solid var(--border-color);
+}
+
+.planning-input-form textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: none;
+    margin-bottom: 0.75rem;
+}
+
+.planning-input-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.planning-input-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.planning-input-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Sidebar */
+.planning-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    overflow-y: auto;
+}
+
+.coverage-card,
+.plan-preview-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.coverage-card h3,
+.plan-preview-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    background: #f1f5f9;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.coverage-count {
+    margin-left: auto;
+    background: var(--primary-color);
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+}
+
+.coverage-list {
+    padding: 0.75rem;
+}
+
+.coverage-loading {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.coverage-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.coverage-item:last-child {
+    margin-bottom: 0;
+}
+
+.coverage-item.covered {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.coverage-item .check-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.coverage-item:not(.covered) .check-icon {
+    border: 2px solid #d1d5db;
+}
+
+.coverage-item.covered .check-icon {
+    background: var(--success-color);
+    color: white;
+}
+
+/* Plan Preview */
+.plan-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 0.5rem;
+}
+
+.plan-preview-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.plan-preview-actions .btn {
+    padding: 0.25rem 0.5rem;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.plan-preview-actions .btn:hover {
+    background: #e2e8f0;
+    border-color: var(--border-color);
+}
+
+.plan-preview-content {
+    padding: 1rem;
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.empty-plan {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Export Actions */
+.plan-export-actions {
+    margin-top: auto;
+}
+
+.plan-export-actions .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.export-hint {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Planning Footer */
+.planning-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: white;
+    border-top: 1px solid var(--border-color);
+}
+
+.planning-footer .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Submit Tab */
+.submit-intro {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.submission-form .btn-lg {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* Starter Repo */
+.starter-repo {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.repo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f1f5f9;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-family: monospace;
+    margin-top: 0.5rem;
+}
+
+.repo-link:hover {
+    background: #e2e8f0;
+}
+
+/* Plan Editor Modal */
+.plan-editor-modal {
+    background: white;
+    border-radius: 0.75rem;
+    width: 90%;
+    max-width: 700px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(20px);
+    transition: transform 0.3s;
+}
+
+.modal-overlay.active .plan-editor-modal {
+    transform: translateY(0);
+}
+
+.plan-editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.plan-editor-header h3 {
+    margin: 0;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    line-height: 1;
+}
+
+.plan-editor-content {
+    padding: 1.5rem;
+    flex: 1;
+    overflow: hidden;
+}
+
+#plan-editor-textarea {
+    width: 100%;
+    height: 300px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: vertical;
+}
+
+.plan-editor-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .planning-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .planning-sidebar {
+        border-top: 1px solid var(--border-color);
+        max-height: 400px;
+    }
+
+    .planning-chat-panel {
+        border-right: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .challenge-tabs {
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        flex: 1 1 45%;
+    }
+
+    .workflow-progress {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .workflow-connector {
+        display: none;
+    }
+
+    .workflow-step {
+        flex: 1 1 45%;
+    }
+
+    .planning-footer {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .planning-footer .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+// Tab switching
+function switchTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+
+    // Update tab content
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.toggle('active', pane.id === 'tab-' + tabName);
+    });
+
+    // Update workflow progress
+    const steps = ['learn', 'plan', 'challenge', 'submit'];
+    const currentIndex = steps.indexOf(tabName);
+    document.querySelectorAll('.workflow-step').forEach((step, index) => {
+        step.classList.toggle('active', step.dataset.step === tabName);
+        step.classList.toggle('completed', index < currentIndex);
+    });
+}
+
+// Initialize tab clicks
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+document.querySelectorAll('.workflow-step').forEach(step => {
+    step.addEventListener('click', () => switchTab(step.dataset.step));
+});
+
+// Planning Harness Functionality
+let planningSessionId = null;
+const goalId = document.getElementById('planning-harness')?.dataset.goalId;
+
+async function initPlanningHarness() {
+    if (!goalId) return;
+
+    try {
+        // Start planning session
+        const response = await fetch(`/api/agent/goals/${goalId}/plan/start`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+        if (data.error) {
+            console.error('Error starting planning session:', data.error);
+            return;
+        }
+
+        planningSessionId = data.session_id;
+
+        // Update coverage list
+        if (data.goals) {
+            updateCoverageList(data.goals, {});
+        }
+
+        // Show opening message
+        if (data.opening_message) {
+            const messagesDiv = document.getElementById('planning-messages');
+            messagesDiv.innerHTML = `
+                <div class="sensei-message">
+                    ${data.opening_message.split('\n').map(line => `<p>${line}</p>`).join('')}
+                </div>
+            `;
+        }
+
+    } catch (error) {
+        console.error('Failed to initialize planning harness:', error);
+    }
+}
+
+function updateCoverageList(goals, coverage) {
+    const coverageList = document.getElementById('coverage-list');
+    const coverageCount = document.getElementById('coverage-count');
+
+    let coveredCount = 0;
+    let html = '';
+
+    goals.forEach(goal => {
+        const isCovered = coverage[goal.id] || false;
+        if (isCovered) coveredCount++;
+
+        html += `
+            <div class="coverage-item ${isCovered ? 'covered' : ''}">
+                <span class="check-icon">
+                    ${isCovered ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+                </span>
+                <span>${goal.title}</span>
+            </div>
+        `;
+    });
+
+    coverageList.innerHTML = html;
+    coverageCount.textContent = `${coveredCount}/${goals.length}`;
+}
+
+// Handle message sending
+document.getElementById('planning-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const input = document.getElementById('planning-input');
+    const sendBtn = document.getElementById('send-planning-btn');
+    const message = input.value.trim();
+
+    if (!message || !planningSessionId) return;
+
+    // Disable button and show processing state
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = 'Processing...';
+
+    // Add user message to chat
+    const messagesDiv = document.getElementById('planning-messages');
+    messagesDiv.innerHTML += `<div class="user-message">${escapeHtml(message)}</div>`;
+
+    // Clear input
+    input.value = '';
+
+    // Send to API
+    try {
+        const response = await fetch(`/api/agent/goals/${goalId}/plan/message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: planningSessionId,
+                message: message
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.response) {
+            messagesDiv.innerHTML += `
+                <div class="sensei-message">
+                    <p>${data.response}</p>
+                </div>
+            `;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        if (data.coverage) {
+            // Re-fetch goals to update coverage display
+            const progressResp = await fetch(`/api/agent/goals/${goalId}/progress`);
+            const progressData = await progressResp.json();
+            if (progressData.progress) {
+                const goals = progressData.progress.map(p => p.core_goal);
+                updateCoverageList(goals, data.coverage.goals || {});
+            }
+        }
+
+        if (data.plan?.plan_content) {
+            document.getElementById('plan-preview-content').innerHTML =
+                `<div class="plan-text">${escapeHtml(data.plan.plan_content).replace(/\n/g, '<br>')}</div>`;
+        }
+
+    } catch (error) {
+        console.error('Error sending message:', error);
+    } finally {
+        // Re-enable button
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Send';
+    }
+});
+
+// Export plan
+document.getElementById('export-plan-btn')?.addEventListener('click', async () => {
+    if (!planningSessionId) return;
+
+    try {
+        const response = await fetch(`/api/agent/goals/${goalId}/plan/export?session_id=${planningSessionId}`);
+        const data = await response.json();
+
+        if (data.markdown) {
+            // Copy to clipboard
+            navigator.clipboard.writeText(data.markdown).then(() => {
+                alert('Plan copied to clipboard!');
+            }).catch(() => {
+                // Fallback: show in modal
+                document.getElementById('plan-editor-textarea').value = data.markdown;
+                document.getElementById('plan-editor-modal').classList.add('active');
+            });
+        }
+    } catch (error) {
+        console.error('Error exporting plan:', error);
+    }
+});
+
+// Generate plan from conversation
+document.getElementById('generate-plan-btn')?.addEventListener('click', async () => {
+    if (!planningSessionId) return;
+
+    try {
+        const btn = document.getElementById('generate-plan-btn');
+        btn.disabled = true;
+
+        const response = await fetch(`/api/agent/goals/${goalId}/plan/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: planningSessionId })
+        });
+
+        const data = await response.json();
+
+        if (data.plan_content) {
+            document.getElementById('plan-preview-content').innerHTML =
+                `<div class="plan-text markdown-content">${data.plan_content.replace(/\n/g, '<br>')}</div>`;
+        }
+
+        btn.disabled = false;
+    } catch (error) {
+        console.error('Error generating plan:', error);
+        document.getElementById('generate-plan-btn').disabled = false;
+    }
+});
+
+// Edit plan modal
+document.getElementById('edit-plan-btn')?.addEventListener('click', () => {
+    const content = document.getElementById('plan-preview-content').innerText;
+    document.getElementById('plan-editor-textarea').value = content;
+    document.getElementById('plan-editor-modal').classList.add('active');
+});
+
+function closePlanEditor() {
+    document.getElementById('plan-editor-modal').classList.remove('active');
+}
+
+async function savePlanEdit() {
+    if (!planningSessionId) return;
+
+    const content = document.getElementById('plan-editor-textarea').value;
+
+    try {
+        const response = await fetch(`/api/agent/goals/${goalId}/plan/update`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: planningSessionId,
+                content: content
+            })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('plan-preview-content').innerHTML =
+                `<div class="plan-text">${escapeHtml(content).replace(/\n/g, '<br>')}</div>`;
+        }
+
+        closePlanEditor();
+    } catch (error) {
+        console.error('Error saving plan:', error);
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Close modal on overlay click
+document.getElementById('plan-editor-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'plan-editor-modal') {
+        closePlanEditor();
+    }
+});
+
+// Initialize on page load
+if (document.getElementById('planning-harness')) {
+    initPlanningHarness();
+}
+</script>
 {% endblock %}

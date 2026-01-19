@@ -12,3 +12,10 @@ from models.ai_feedback import AIFeedback
 from models.instructor_feedback import InstructorFeedback
 from models.anatomy_topic import AnatomyTopic
 from models.anatomy_conversation import AnatomyConversation, ConversationMessage, StudentRealization
+
+# New models for agent harness and gems system
+from models.core_learning_goal import CoreLearningGoal
+from models.goal_progress import GoalProgress
+from models.agent_session import AgentSession, AgentMessage
+from models.challenge_plan import ChallengePlan
+from models.voice_input_metrics import VoiceInputMetrics

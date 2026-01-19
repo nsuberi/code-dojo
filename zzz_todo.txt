@@ -1,0 +1,28 @@
+Want the student to be able to view their diff, as well as the teacher.
+Allow for collapsing the diffs to see the list of files, and allow for opening up the files one at time,
+similar to how github shows diffs in a PR
+
+Implement LangChain / LangGraph / LangSmith for tracking performance of AI features
+Agent harness for talking through the key learning goals of each exercise
+The sensei has gems around their avatar that light up as they are uncovered through conversation
+
+Determine when Parlant would be a better fit than LangGraph for the learner guidance
+i.e. when needing to switch assessment topics fluidly rather than forcing the conversation through a pre-defined structure
+
+Implement behavior metrics to see what people click on, how long they stay on pages, and other metrics that can be used to gauge
+engagement with the platform, user frustration, and drive / measure feature choices
+
+Add web container / github coder for doing the exercises and connecting to your personal GitHub account and using claude code on the platform
+
+
+ Differntiate between understanding demonstrated in pre-test and post-test
+ Pre-testing should help the student make a plan for the work to come
+ Integrate voice capture to have students talk through their understanding
+
+ Create a skill that makes an architectural diagram for a codebase
+
+ Re-certification conversation - navigate through Skill Portfolio and make sure to hit key points
+ Parallel to pre-approval for insurance when you're in a doctors visit and an ambient AI tracks your conversation
+ for key indicators that you are displaying the right level of understanding to retain certification
+
+ Switch challenge and plan tabs... find a way to combine those with the GitHub Coder experience

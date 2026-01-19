@@ -1,23 +1,67 @@
 """Socratic chat service for anatomy discussions using Claude."""
 
+import os
 import re
 import uuid
 from datetime import datetime
 from anthropic import Anthropic
+from langsmith import traceable
 from config import Config
 from models import db
 from models.anatomy_topic import AnatomyTopic
 from models.anatomy_conversation import AnatomyConversation, ConversationMessage, StudentRealization
 
+# Set up LangSmith environment variables
+os.environ["LANGCHAIN_TRACING_V2"] = Config.LANGCHAIN_TRACING_V2
+os.environ["LANGCHAIN_API_KEY"] = Config.LANGCHAIN_API_KEY
+os.environ["LANGCHAIN_PROJECT"] = Config.LANGCHAIN_PROJECT
 
-def get_socratic_system_prompt(topic_name, topic_description, analogies, diff_content, challenge_context):
-    """Build the system prompt for Socratic dialogue."""
+
+def format_pass_indicators(indicators):
+    """Format pass indicators as a bulleted list."""
+    return "\n".join(f"- {indicator}" for indicator in indicators)
+
+
+def get_socratic_system_prompt(topic_name, topic_description, analogies, diff_content, challenge_context, rubric_context=None):
+    """Build the system prompt for Socratic dialogue.
+
+    Args:
+        topic_name: Name of the topic being discussed
+        topic_description: Description of the topic
+        analogies: Suggested analogies for teaching
+        diff_content: The student's code diff
+        challenge_context: Context from the challenge
+        rubric_context: Optional dict with:
+            - criterion: The learning criterion to explore
+            - pass_indicators: What demonstrates understanding
+            - current_hint_index: Which Socratic hint to emphasize (0-2)
+            - hints: List of progressive Socratic questions
+    """
     analogy_section = ""
     if analogies:
         analogy_section = f"""
 ## Suggested Analogies
 Use these analogies when helpful:
 {analogies}
+"""
+
+    # Add rubric section if provided
+    rubric_section = ""
+    if rubric_context:
+        current_hint = rubric_context['hints'][rubric_context['current_hint_index']] if rubric_context.get('hints') else ""
+        rubric_section = f"""
+
+## Focused Learning Objective
+Your goal in this conversation is to guide the student to understand:
+**{rubric_context['criterion']}**
+
+They demonstrate understanding when they can:
+{format_pass_indicators(rubric_context['pass_indicators'])}
+
+Start with or build upon this Socratic question:
+{current_hint}
+
+If they struggle, build up progressively from simpler concepts.
 """
 
     return f"""You are the Socratic Sensei, a wise and patient coding teacher who guides students to understand their own code through thoughtful questions rather than direct explanations.
@@ -33,6 +77,7 @@ Use these analogies when helpful:
 **{topic_name}**
 {topic_description or ''}
 {analogy_section}
+{rubric_section}
 
 ## The Student's Code Context
 The student is discussing code they wrote for this challenge:
@@ -62,7 +107,8 @@ For example:
 Begin the conversation by warmly greeting the student and asking an opening question about the topic that invites them to share what they already understand."""
 
 
-def start_conversation(submission, topic_id=None, topic_name=None, topic_description=None, analogies=None, diff_content=None):
+@traceable(name="socratic_chat_start", metadata={"feature": "socratic_sensei"})
+def start_conversation(submission, topic_id=None, topic_name=None, topic_description=None, analogies=None, diff_content=None, rubric_context=None):
     """
     Start a new Socratic conversation about an anatomy topic.
 
@@ -73,6 +119,7 @@ def start_conversation(submission, topic_id=None, topic_name=None, topic_descrip
         topic_description: Description of the topic
         analogies: Suggested analogies for teaching
         diff_content: The student's code diff
+        rubric_context: Optional rubric context for agent-driven sessions
 
     Returns:
         Tuple of (conversation, opening_message)
@@ -108,9 +155,9 @@ def start_conversation(submission, topic_id=None, topic_name=None, topic_descrip
     # Get challenge context
     challenge_context = submission.goal.challenge_md or submission.goal.title
 
-    # Build system prompt
+    # Build system prompt with optional rubric context
     system_prompt = get_socratic_system_prompt(
-        topic_name, topic_description, analogies, diff_content, challenge_context
+        topic_name, topic_description, analogies, diff_content, challenge_context, rubric_context
     )
 
     try:
@@ -166,7 +213,8 @@ def start_conversation(submission, topic_id=None, topic_name=None, topic_descrip
         return None, f"Error starting conversation: {str(e)}"
 
 
-def send_message(conversation_id, user_message, diff_content=None):
+@traceable(name="socratic_chat_message", metadata={"feature": "socratic_sensei"})
+def send_message(conversation_id, user_message, diff_content=None, rubric_context=None):
     """
     Send a message in an existing conversation and get Claude's response.
 
@@ -174,6 +222,7 @@ def send_message(conversation_id, user_message, diff_content=None):
         conversation_id: The conversation UUID
         user_message: The user's message
         diff_content: The student's code diff (for context)
+        rubric_context: Optional rubric context for progressive hints
 
     Returns:
         Tuple of (success, response_text_or_error)
@@ -202,9 +251,9 @@ def send_message(conversation_id, user_message, diff_content=None):
     # Get challenge context
     challenge_context = conversation.submission.goal.challenge_md or conversation.submission.goal.title
 
-    # Build system prompt
+    # Build system prompt with optional rubric context
     system_prompt = get_socratic_system_prompt(
-        topic_name, topic_description, analogies, diff_content, challenge_context
+        topic_name, topic_description, analogies, diff_content, challenge_context, rubric_context
     )
 
     # Build message history
@@ -271,6 +320,7 @@ def send_message(conversation_id, user_message, diff_content=None):
         return False, f"Error sending message: {str(e)}"
 
 
+@traceable(name="socratic_chat_end", metadata={"feature": "socratic_sensei"})
 def end_conversation(conversation_id):
     """
     End a conversation and generate a synthesis of what was learned.

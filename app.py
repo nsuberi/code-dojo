@@ -248,6 +248,7 @@ from routes.submissions import submissions_bp
 from routes.admin import admin_bp
 from routes.anatomy import anatomy_bp
 from routes.scheduling import scheduling_bp
+from routes.agent_harness import agent_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(modules_bp)
@@ -255,6 +256,7 @@ app.register_blueprint(submissions_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(anatomy_bp)
 app.register_blueprint(scheduling_bp)
+app.register_blueprint(agent_bp)
 
 
 # Home route

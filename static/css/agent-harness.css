@@ -1,0 +1,598 @@
+/* Agent Harness Styles - Planning & Articulation */
+
+/* Variables for harness modes */
+:root {
+    --planning-color: #667eea; /* Blue/teal for planning */
+    --articulation-color: #9b59b6; /* Purple/warm for articulation */
+    --gem-passed: #667eea;
+    --gem-engaged: #9b59b6;
+    --gem-expired: #f39c12;
+}
+
+/* ==================== Gems UI ==================== */
+.mastery-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8f4ff;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.mastery-label {
+    font-weight: 600;
+    color: var(--articulation-color);
+    font-size: 0.875rem;
+}
+
+.gems-display {
+    font-size: 1.25rem;
+    letter-spacing: 4px;
+}
+
+.gems-count {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.topics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.topic-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.topic-btn:hover {
+    border-color: var(--articulation-color);
+    box-shadow: 0 2px 8px rgba(155, 89, 182, 0.2);
+}
+
+.topic-btn.gem-passed {
+    border-color: var(--gem-passed);
+    background: #f0f4ff;
+}
+
+.topic-btn.gem-engaged {
+    border-color: var(--gem-engaged);
+    background: #f8f4ff;
+}
+
+.topic-btn.gem-expired {
+    border-color: var(--gem-expired);
+    background: #fff8f0;
+}
+
+.gem-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.topic-info {
+    flex: 1;
+}
+
+.topic-title {
+    font-weight: 500;
+    display: block;
+}
+
+.expired-badge {
+    font-size: 0.75rem;
+    color: var(--gem-expired);
+    margin-top: 4px;
+    display: block;
+}
+
+.progress-summary {
+    text-align: center;
+    padding: 12px;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.stat-passed { color: var(--gem-passed); font-weight: 600; }
+.stat-engaged { color: var(--gem-engaged); font-weight: 600; }
+.stat-expired { color: var(--gem-expired); font-weight: 600; }
+
+.instructor-unlock-notice {
+    background: linear-gradient(135deg, #f0f4ff 0%, #f8f4ff 100%);
+    border: 1px solid #e0e0ff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+    margin-top: 16px;
+}
+
+/* ==================== Voice Input ==================== */
+.voice-input-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+}
+
+.voice-input-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.voice-input-header h3 {
+    margin-bottom: 8px;
+}
+
+.voice-input-header p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.voice-state {
+    text-align: center;
+    padding: 24px;
+}
+
+.voice-record-btn {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--articulation-color);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 16px;
+    transition: all 0.2s;
+}
+
+.voice-record-btn:hover {
+    background: #f8f4ff;
+    transform: scale(1.05);
+}
+
+.mic-icon {
+    font-size: 2rem;
+}
+
+.voice-hint {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.voice-hint a {
+    color: var(--articulation-color);
+}
+
+.recording-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.recording-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: pulse-red 1s infinite;
+}
+
+@keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.recording-time {
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: monospace;
+}
+
+.voice-stop-btn {
+    padding: 12px 24px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-right: 12px;
+}
+
+.voice-cancel-btn {
+    padding: 12px 24px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.processing-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e0e0e0;
+    border-top-color: var(--articulation-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.transcription-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    margin-bottom: 16px;
+}
+
+.transcription-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+/* ==================== Articulation Harness ==================== */
+.articulation-harness {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.articulation-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    color: white;
+}
+
+.sensei-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid white;
+}
+
+.articulation-header h2 {
+    margin-bottom: 4px;
+}
+
+.articulation-header p {
+    opacity: 0.9;
+    font-size: 0.875rem;
+}
+
+.articulation-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: 500px;
+}
+
+.articulation-sidebar {
+    padding: 20px;
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+}
+
+.articulation-main {
+    display: flex;
+    flex-direction: column;
+}
+
+#articulation-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.chat-message {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.chat-message-assistant {
+    align-items: flex-start;
+}
+
+.chat-message-user {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.message-content {
+    max-width: 70%;
+}
+
+.chat-message-assistant .message-content {
+    background: #f0f4ff;
+    padding: 12px 16px;
+    border-radius: 12px 12px 12px 0;
+}
+
+.chat-message-user .message-content {
+    background: var(--articulation-color);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 12px 12px 0 12px;
+}
+
+.message-meta {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-bottom: 4px;
+}
+
+.input-area {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.text-input-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.text-input-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: none;
+}
+
+.input-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+/* ==================== Checkmarks UI ==================== */
+.coverage-indicator {
+    padding: 16px;
+    background: #f0f8ff;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.coverage-indicator h4 {
+    color: var(--planning-color);
+    font-size: 0.875rem;
+}
+
+.coverage-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.coverage-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+}
+
+.coverage-item.covered {
+    background: #f0fff4;
+}
+
+.coverage-item.covered .check-icon {
+    color: var(--success-color);
+}
+
+.coverage-item.not-covered .check-icon {
+    color: var(--text-secondary);
+}
+
+.check-icon {
+    font-size: 1rem;
+    width: 24px;
+    text-align: center;
+}
+
+.check-title {
+    font-size: 0.875rem;
+}
+
+/* ==================== Plan Editor ==================== */
+.plan-editor {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.plan-header h3 {
+    font-size: 0.875rem;
+    color: var(--planning-color);
+}
+
+.plan-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.plan-content {
+    padding: 16px;
+    min-height: 200px;
+}
+
+.plan-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    resize: vertical;
+}
+
+.plan-preview {
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.empty-plan {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.plan-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+}
+
+.plan-footer small {
+    color: var(--text-secondary);
+}
+
+/* ==================== Gem Unlock Animation ==================== */
+.gem-unlock-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s;
+}
+
+.gem-unlock-animation {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    animation: scaleIn 0.3s;
+}
+
+.gem-icon-large {
+    font-size: 4rem;
+    display: block;
+    animation: bounce 0.5s ease;
+}
+
+.gem-message {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gem-passed);
+    margin-top: 16px;
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+/* ==================== Completion Celebration ==================== */
+.completion-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.completion-content {
+    background: white;
+    padding: 48px;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 400px;
+}
+
+.completion-content h2 {
+    font-size: 2rem;
+    margin-bottom: 16px;
+}
+
+.completion-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin: 24px 0;
+    font-size: 1.25rem;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .articulation-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .articulation-sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .topics-grid {
+        grid-template-columns: 1fr;
+    }
+}

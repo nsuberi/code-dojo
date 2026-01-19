@@ -24,3 +24,11 @@ class Config:
 
     # Calendly scheduling
     CALENDLY_URL = os.getenv('CALENDLY_URL', '')  # e.g., https://calendly.com/instructor-name/30min
+
+    # LangSmith configuration for tracing
+    LANGCHAIN_TRACING_V2 = os.getenv('LANGCHAIN_TRACING_V2', 'true')
+    LANGCHAIN_API_KEY = os.getenv('LANGSMITH_API_KEY', '')
+    LANGCHAIN_PROJECT = os.getenv('LANGCHAIN_PROJECT', 'code-dojo')
+
+    # OpenAI configuration for Whisper transcription
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', os.getenv('OPENAPI_KEY', ''))

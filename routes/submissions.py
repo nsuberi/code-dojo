@@ -6,10 +6,46 @@ from models import db
 from models.submission import Submission
 from models.goal import LearningGoal
 from models.ai_feedback import AIFeedback
+from models.core_learning_goal import CoreLearningGoal
+from models.goal_progress import GoalProgress
 from services.github import fetch_github_diff
 from services.ai_feedback import generate_ai_feedback
 
 submissions_bp = Blueprint('submissions', __name__, url_prefix='/submissions')
+
+
+def check_instructor_unlock_threshold(user_id, learning_goal_id):
+    """Check if user has met 50% engagement threshold for instructor feedback.
+
+    Returns:
+        Tuple of (can_unlock, stats_dict)
+    """
+    core_goals = CoreLearningGoal.query.filter_by(learning_goal_id=learning_goal_id).all()
+
+    if not core_goals:
+        # No core goals defined - allow by default
+        return True, {'total': 0, 'valid': 0, 'threshold_met': True}
+
+    total = len(core_goals)
+    valid_count = 0
+
+    for goal in core_goals:
+        progress = GoalProgress.query.filter_by(
+            user_id=user_id,
+            core_goal_id=goal.id
+        ).first()
+
+        if progress and progress.can_unlock_instructor():
+            valid_count += 1
+
+    threshold_met = valid_count / total >= 0.5 if total > 0 else True
+
+    return threshold_met, {
+        'total': total,
+        'valid': valid_count,
+        'threshold_met': threshold_met,
+        'needed': max(0, (total // 2 + 1) - valid_count)
+    }
 
 
 @submissions_bp.route('/create', methods=['POST'])
@@ -93,7 +129,38 @@ def request_instructor_feedback(submission_id):
         flash('Submission must have AI feedback before requesting instructor review.', 'warning')
         return redirect(url_for('submissions.view_submission', submission_id=submission_id))
 
+    # Check if user has met the engagement threshold
+    force_skip = request.form.get('force_skip') == 'true'
+    can_unlock, stats = check_instructor_unlock_threshold(current_user.id, submission.goal_id)
+
+    if not can_unlock and not force_skip:
+        flash(f'Please explore at least {stats["needed"]} more concepts with the Socratic Sensei before requesting instructor feedback. '
+              f'(Current progress: {stats["valid"]}/{stats["total"]})', 'warning')
+        return redirect(url_for('submissions.view_submission', submission_id=submission_id))
+
     submission.status = 'feedback_requested'
     db.session.commit()
-    flash('Instructor feedback requested!', 'success')
+
+    if force_skip:
+        flash('Instructor feedback requested! Note: You skipped the engagement threshold.', 'info')
+    else:
+        flash('Instructor feedback requested! Great job engaging with the material first.', 'success')
+
     return redirect(url_for('submissions.view_submission', submission_id=submission_id))
+
+
+@submissions_bp.route('/<int:submission_id>/check-instructor-unlock')
+@login_required
+def check_instructor_unlock(submission_id):
+    """Check if user can request instructor feedback (API endpoint)."""
+    submission = Submission.query.get_or_404(submission_id)
+
+    if submission.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    can_unlock, stats = check_instructor_unlock_threshold(current_user.id, submission.goal_id)
+
+    return jsonify({
+        'can_unlock': can_unlock,
+        'stats': stats
+    })
