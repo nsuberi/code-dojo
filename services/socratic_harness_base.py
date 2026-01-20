@@ -225,7 +225,7 @@ class SocraticHarnessBase:
 
     def create_welcome_message(self, goals):
         """Create the welcome message for the session."""
-        return f"""Hello! I'm your Socratic Sensei. I can help you explore {len(goals)} key learning concepts from this challenge:
+        return f"""Hello! I'm your Digi Trainer. I can help you explore {len(goals)} key learning concepts from this challenge:
 
 {format_goal_menu(goals)}
 

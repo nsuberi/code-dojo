@@ -23,3 +23,4 @@ from models.voice_input_metrics import VoiceInputMetrics
 # Enhanced feedback and evaluation models (Section 2.1, 12)
 from models.challenge_rubric import ChallengeRubric
 from models.sensei_evaluation import SenseiEvaluation
+from models.architectural_analysis import ArchitecturalAnalysis

@@ -68,7 +68,7 @@ class PlanningHarness(SocraticHarnessBase):
         db.session.commit()
 
         # Create welcome message
-        welcome = f"""Hello! I'm your Socratic Sensei. Let's build your implementation plan together.
+        welcome = f"""Hello! I'm your Digi Trainer. Let's build your implementation plan together.
 
 Before you start coding, let's think through the key concepts you'll need to address:
 
@@ -192,7 +192,7 @@ What specific approach are you thinking for handling this in your code?"""
         # Build system prompt for planning
         goals_context = "\n".join([f"- {g['title']}: {g['description']}" for g in goals])
 
-        system_prompt = f"""You are the Socratic Sensei helping a student build an implementation plan before they start coding.
+        system_prompt = f"""You are the Digi Trainer helping a student build an implementation plan before they start coding.
 
 ## Your Role
 - Help them think through their approach
@@ -336,26 +336,42 @@ As the conversation progresses, help structure their thoughts into actionable pl
 
         prompt = f"""Based on this planning conversation, create a structured implementation plan.
 
-## Learning Goals
-{goals_text}
+## Context
+Learning Goals: {goals_text}
 
 ## Conversation
 {conversation_text[:6000]}
 
-Create a markdown plan with:
-1. ## Understanding - Key concepts identified
-2. ## Approach - Step-by-step implementation plan
-3. ## Key Considerations - Technical considerations discussed
-4. ## Questions to Explore - Open questions to investigate while coding
+## Output Format
+Create an implementation plan that a developer can follow step-by-step:
 
-Keep it concise and actionable."""
+### Step 1: [Action] [Component]
+**File:** `path/to/file.py`
+**Changes:**
+- Specific change 1
+- Specific change 2
+
+**Verification:** How to test this step works
+
+### Step 2: [Next Action]
+...
+
+### Testing Checklist
+- [ ] Test case 1
+- [ ] Test case 2
+
+### Key Decisions Made
+- Decision 1 and rationale
+- Decision 2 and rationale
+
+Be specific about file paths, function names, and implementation details discussed in the conversation. Each step should be actionable and verifiable."""
 
         try:
             client = Anthropic(api_key=api_key)
 
             response = client.messages.create(
                 model="claude-sonnet-4-20250514",
-                max_tokens=1000,
+                max_tokens=2000,
                 messages=[{"role": "user", "content": prompt}]
             )
 

@@ -48,8 +48,12 @@ class ArticulationHarness(SocraticHarnessBase):
         self.diff_content = diff_content
 
     @traceable(name="articulation_harness_orchestration", metadata={"harness_type": "articulation"})
-    def start_session(self):
-        """Start a new articulation session."""
+    def start_session(self, focus_goal_id=None):
+        """Start a new articulation session.
+
+        Args:
+            focus_goal_id: If provided, immediately focus on this specific core goal
+        """
         # Load learning goals
         goals = self.get_core_learning_goals()
 
@@ -68,11 +72,17 @@ class ArticulationHarness(SocraticHarnessBase):
         db.session.add(self.session)
         db.session.commit()
 
+        # If focus_goal_id provided, immediately focus on that specific goal
+        if focus_goal_id:
+            for i, goal in enumerate(goals):
+                if goal['id'] == focus_goal_id:
+                    return self._focus_on_goal(goals, i, introduce=True)
+
         # Calculate current engagement
         engagement = self.calculate_engagement_stats()
 
         # Create welcome message
-        welcome = f"""Hello! I'm your Socratic Sensei. Let's talk through what you built.
+        welcome = f"""Hello! I'm your Digi Trainer. Let's talk through what you built.
 
 Explaining your code verbally is essential for code reviews and technical interviews. This is practice for those moments.
 
@@ -301,9 +311,9 @@ Walk me through how you implemented this in your code. How would you explain it 
         hints = rubric_item.get('socratic_hints', [])
         hint = hints[0] if hints else ""
 
-        response = f"""That's a great explanation!
+        response = f"""✓ That's a solid explanation!
 
-Now let's dig a bit deeper. {hint}"""
+Now let's explore a related aspect. {hint}"""
 
         self.store_message('assistant', response)
 
@@ -368,9 +378,9 @@ Try to connect this to what you actually implemented in your code."""
         engagement = self.calculate_engagement_stats()
 
         if status == 'passed':
-            gem_message = "💎 You've demonstrated mastery of this concept!"
+            gem_message = "💎 **Mastery demonstrated!** You clearly understand this concept."
         else:
-            gem_message = "🔵 Great engagement with this concept!"
+            gem_message = "🔵 **Good engagement!** You've shown effort on this concept."
 
         # Check if we should offer instructor unlock
         if engagement['can_request_instructor'] and not self.session.guide_me_mode:
@@ -479,7 +489,7 @@ What would you like to do next?"""
         # Build system prompt
         goals_context = "\n".join([f"- {g['title']}: {g['description']}" for g in goals])
 
-        system_prompt = f"""You are the Socratic Sensei helping a student articulate their understanding of code they've written.
+        system_prompt = f"""You are the Digi Trainer helping a student articulate their understanding of code they've written.
 
 ## Your Role
 - Guide them to explain their implementation clearly

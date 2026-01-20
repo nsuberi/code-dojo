@@ -19,6 +19,10 @@ class Config:
     GITHUB_API_BASE = 'https://api.github.com'
     GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', None)
 
+    # PR Validation Settings
+    PR_BASE_VALIDATION_STRICT = True  # Enforce base repo must match starter repo
+    PR_CACHE_DURATION = 3600  # Cache PR metadata for 1 hour (future enhancement)
+
     # Debug mode
     DEBUG = os.getenv('FLASK_DEBUG', '1') == '1'
 
@@ -32,3 +36,9 @@ class Config:
 
     # OpenAI configuration for Whisper transcription
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', os.getenv('OPENAPI_KEY', ''))
+
+    # Architectural Analysis configuration
+    ARCH_ANALYSIS_ENABLED = os.getenv('ARCH_ANALYSIS_ENABLED', 'true').lower() == 'true'
+    ARCH_ANALYSIS_TIMEOUT = int(os.getenv('ARCH_ANALYSIS_TIMEOUT', '30'))  # seconds
+    ARCH_SKIP_SMALL_PRS = os.getenv('ARCH_SKIP_SMALL_PRS', 'true').lower() == 'true'  # Skip if <5 files
+    ARCH_DETAIL_LEVEL = os.getenv('ARCH_DETAIL_LEVEL', 'medium')  # basic/medium/deep

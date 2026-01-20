@@ -49,7 +49,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ url_for('submissions.view_submission', submission_id=submission.id) }}"
+                                <a href="{{ url_for('modules.goal_detail', module_id=submission.goal.module_id, goal_id=submission.goal_id) }}#tab-review"
                                    class="btn btn-small">View</a>
                             </td>
                         </tr>

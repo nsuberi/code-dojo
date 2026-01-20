@@ -53,7 +53,10 @@ class AgenticReviewService:
             for a in valid_approaches
         ])
 
-        prompt = f"""Analyze this code diff to determine which authentication approach was used.
+        # Get approach type label from rubric with fallback
+        approach_type_label = rubric.get('approach_type_label', 'approach')
+
+        prompt = f"""Analyze this code diff to determine which {approach_type_label} was used.
 
 ## Valid Approaches
 {approaches_desc}
@@ -63,7 +66,7 @@ class AgenticReviewService:
 
 Respond in JSON format:
 {{
-    "approach_id": "the approach ID (api_key, basic_auth, or jwt)",
+    "approach_id": "the approach ID from the list above",
     "confidence": "high, medium, or low",
     "evidence_lines": ["list of specific line numbers or code snippets that indicate this approach"],
     "reasoning": "brief explanation of why this approach was detected"
@@ -235,12 +238,15 @@ Respond in JSON format:
         return {"has_tests": False, "coverage_assessment": "unknown", "feedback": result}
 
     @traceable(name="analyze_security")
-    def _analyze_security(self, diff_content, approach_id):
+    def _analyze_security(self, diff_content, approach_id, rubric):
         """
         Step 6: Security analysis for the chosen approach.
         Returns: security assessment
         """
-        prompt = f"""Perform a security analysis of this {approach_id} authentication implementation.
+        # Get domain context from rubric with fallback
+        domain_context = rubric.get('domain_context', 'implementation')
+
+        prompt = f"""Perform a security analysis of this {approach_id} {domain_context}.
 
 ## Code Diff
 {diff_content}
@@ -344,8 +350,9 @@ Respond in JSON format:
         # Build the feedback markdown
         feedback_parts = []
 
-        # Header
-        feedback_parts.append(f"# Code Review: API Authentication\n")
+        # Header - use title from rubric with fallback
+        title = rubric.get('title', 'Code Review')
+        feedback_parts.append(f"# {title}\n")
         feedback_parts.append(f"## Your Approach: {approach_name} ✓\n")
         feedback_parts.append(f"You implemented {approach_name.lower()}.")
         if approach_detection.get('reasoning'):
@@ -426,18 +433,29 @@ Respond in JSON format:
         else:
             feedback_parts.append("This challenge supports multiple valid approaches including API Key, HTTP Basic Auth, and JWT.")
 
-        # Key Learning Points
+        # Key Learning Points - use learning_points from rubric with fallback
         feedback_parts.append("\n\n---\n\n## Key Learning Points\n")
-        feedback_parts.append("1. Authentication protects sensitive endpoints while keeping read operations accessible")
-        feedback_parts.append("2. The decorator pattern provides clean, reusable authentication logic")
-        feedback_parts.append("3. Different auth approaches have different tradeoffs - choose based on your use case")
+        learning_points = rubric.get('learning_points', [
+            'Implementation follows best practices',
+            'Different approaches have tradeoffs',
+            'Consider your specific use case'
+        ])
+        for i, point in enumerate(learning_points, 1):
+            feedback_parts.append(f"{i}. {point}")
 
         return "\n".join(feedback_parts)
 
     @traceable(name="run_full_review")
-    def run_full_review(self, challenge_md, diff_content, rubric):
+    def run_full_review(self, challenge_md, diff_content, rubric, progress_callback=None):
         """
         Run the complete agentic review pipeline.
+
+        Args:
+            challenge_md: Challenge description
+            diff_content: Code diff
+            rubric: Challenge rubric
+            progress_callback: Optional callback function(step, description, progress)
+                              for progress updates
 
         Returns:
             dict with keys: content, detected_approach, evaluation, alternatives, line_references
@@ -451,29 +469,61 @@ Respond in JSON format:
                 'line_references': None
             }
 
+        # Define sub-step weights (percentages within basic_review phase)
+        sub_weights = {
+            'detect_approach': 8,
+            'analyze_architecture': 6,
+            'evaluate_universal': 10,
+            'evaluate_approach': 10,
+            'evaluate_tests': 6,
+            'analyze_security': 6,
+            'generate_alternatives': 2,
+            'synthesize': 2
+        }
+
+        current_progress = 0
+
+        def emit_progress(step, description):
+            nonlocal current_progress
+            current_progress += sub_weights[step]
+            if progress_callback:
+                progress_callback(
+                    step=f"basic_review.{step}",
+                    description=description,
+                    progress=current_progress
+                )
+
         # Step 1: Detect approach
+        emit_progress('detect_approach', 'Identifying implementation approach')
         approach_detection = self._detect_approach(diff_content, rubric)
         approach_id = approach_detection.get('approach_id', 'unknown')
 
         # Step 2: Analyze architecture
+        emit_progress('analyze_architecture', 'Mapping code structure')
         architecture = self._analyze_architecture(diff_content)
 
         # Step 3: Evaluate universal criteria
+        emit_progress('evaluate_universal', 'Checking best practices')
         universal_eval = self._evaluate_universal_criteria(diff_content, rubric)
 
         # Step 4: Evaluate approach-specific criteria
+        emit_progress('evaluate_approach', 'Evaluating approach-specific patterns')
         approach_eval = self._evaluate_approach_criteria(diff_content, approach_id, rubric)
 
         # Step 5: Evaluate tests
+        emit_progress('evaluate_tests', 'Analyzing test coverage')
         tests_eval = self._evaluate_tests(diff_content)
 
         # Step 6: Security analysis
-        security_analysis = self._analyze_security(diff_content, approach_id)
+        emit_progress('analyze_security', 'Running security checks')
+        security_analysis = self._analyze_security(diff_content, approach_id, rubric)
 
         # Step 7: Generate alternatives discussion
+        emit_progress('generate_alternatives', 'Comparing alternative solutions')
         alternatives = self._generate_alternatives_discussion(approach_id, rubric)
 
         # Step 8: Synthesize feedback
+        emit_progress('synthesize', 'Creating personalized feedback')
         content = self._synthesize_feedback(
             approach_detection, architecture, universal_eval,
             approach_eval, tests_eval, security_analysis, alternatives, rubric

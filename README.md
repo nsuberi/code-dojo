@@ -12,45 +12,82 @@ A Flask-based learning platform where students can view modules, watch tutorials
 
 ## Quick Start
 
-### 1. Set up virtual environment
+### One-Command Startup (Recommended)
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+git clone <repository-url>
+cd code-dojo
+./start.sh
 ```
 
-### 2. Install dependencies
+The startup script will automatically:
+- Check for virtual environment and dependencies
+- Create and seed the database if needed
+- Start Flask on http://localhost:5002
 
-```bash
-pip install -r requirements.txt
-```
+**First run:** The script will prompt you to create a virtual environment and install dependencies.
 
-### 3. Configure environment variables (optional)
+### Manual Setup (Alternative)
 
-Create a `.env` file:
+If you prefer manual control:
 
-```bash
-FLASK_SECRET_KEY=your-secret-key
-ANTHROPIC_API_KEY=your-api-key  # For AI feedback
-```
+1. **Set up virtual environment**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # Windows: venv\Scripts\activate
+   ```
 
-### 4. Initialize the database
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-```bash
-python seed_data.py
-```
+3. **Initialize database**
+   ```bash
+   python seed_data.py --all
+   ```
 
-This creates:
-- Sample learning module and challenges
-- Admin, instructor, and student accounts
-
-### 5. Run the server
-
-```bash
-python app.py
-```
+4. **Run the server**
+   ```bash
+   python app.py
+   ```
 
 The app will be available at `http://localhost:5002`
+
+## Managing the Application
+
+### Starting the App
+
+```bash
+./start.sh              # Smart startup (checks DB, seeds if needed)
+./start.sh --fresh      # Reset database and start fresh (DESTRUCTIVE)
+./start.sh --no-seed    # Quick restart without DB checks
+./start.sh --seed-only  # Only seed database, don't start app
+```
+
+### Stopping the App
+
+Press `Ctrl+C` in the terminal, or:
+
+```bash
+kill $(lsof -ti:5002)
+```
+
+### Checking Database Status
+
+```bash
+python seed_data.py --check
+```
+
+### Resetting the Database
+
+```bash
+./start.sh --fresh
+# or manually:
+python seed_data.py --reset
+python seed_data.py --rubrics
+python seed_data.py --challenge-rubric
+```
 
 ## Demo Accounts
 
@@ -77,6 +114,101 @@ This creates:
 - AI feedback for both submissions
 - Instructor review for Bob's submission (marked as passed)
 
+## Troubleshooting
+
+### CoreLearningGoals (Gems) show 0 in the UI
+
+**Symptom:** Console shows "no core learning goals defined for this challenge yet"
+
+**Cause:** Database was seeded without the `--rubrics` flag
+
+**Fix:**
+```bash
+python seed_data.py --rubrics
+python seed_data.py --challenge-rubric
+# or reset everything:
+./start.sh --fresh
+```
+
+### Port 5002 already in use
+
+**Cause:** Flask is already running or another process is using the port
+
+**Fix:**
+```bash
+# Kill the process using port 5002
+kill $(lsof -ti:5002)
+# Then restart
+./start.sh
+```
+
+### "No module named 'flask'" error
+
+**Cause:** Virtual environment not activated or dependencies not installed
+
+**Fix:**
+```bash
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+./start.sh
+```
+
+### Database file permission errors
+
+**Cause:** Incorrect permissions on instance/ directory
+
+**Fix:**
+```bash
+mkdir -p instance
+chmod 755 instance/
+# If database exists:
+chmod 644 instance/code_dojo.db
+```
+
+### Demo submissions don't appear
+
+**Cause:** Demo data not created (separate from seed data)
+
+**Fix:**
+```bash
+python demo_submissions.py
+```
+
+## Claude Code Plugin
+
+This repository includes a local plugin for Claude Code that enhances PR analysis and architectural review capabilities.
+
+### Installing the arch-pr-analyzer Plugin
+
+If you're using Claude Code CLI, you can install the local plugin:
+
+```bash
+# Add the local marketplace
+/plugin marketplace add ./local-marketplace
+
+# Install the plugin
+/plugin install arch-pr-analyzer@code-dojo-plugins
+
+# Restart Claude Code to load the plugin
+```
+
+Or from your terminal:
+
+```bash
+claude plugin marketplace add ./local-marketplace
+claude plugin install arch-pr-analyzer@code-dojo-plugins
+```
+
+### Using the Plugin
+
+Once installed, you can:
+- Run `/arch-pr-analyzer:arch-analyze` to analyze PR architectural changes
+- Access architectural analysis skills for codebase insights
+- Use multi-granularity reports and diagrams for code reviews
+
+See `local-marketplace/README.md` for more details.
+
 ## Project Structure
 
 ```
@@ -86,6 +218,9 @@ code-dojo/
 ├── requirements.txt            # Python dependencies
 ├── seed_data.py                # Database initialization
 ├── demo_submissions.py         # Create sample submissions
+├── local-marketplace/          # Claude Code plugin marketplace
+│   └── plugins/
+│       └── arch-pr-analyzer/   # PR architecture analysis plugin
 ├── models/
 │   ├── user.py                 # User model
 │   ├── module.py               # LearningModule model

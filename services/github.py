@@ -266,3 +266,37 @@ def calculate_diff_stats(diff_content):
         'total_additions': total_additions,
         'total_deletions': total_deletions
     }
+
+
+def fetch_github_diff_from_pr(pr_url):
+    """
+    Fetch diff from a GitHub Pull Request URL.
+
+    Args:
+        pr_url: GitHub Pull Request URL (e.g., https://github.com/owner/repo/pull/123)
+
+    Returns:
+        Tuple of (diff_content, error_message).
+        Returns (diff_content, None) on success, (None, error_message) on failure.
+    """
+    # Import here to avoid circular import
+    from services.github_pr import parse_pr_url, fetch_pr_files, pr_files_to_unified_diff
+
+    # Parse PR URL
+    parsed = parse_pr_url(pr_url)
+    if not parsed:
+        return None, "Invalid PR URL format"
+
+    # Fetch PR files
+    files = fetch_pr_files(parsed['owner'], parsed['repo'], parsed['pr_number'])
+
+    if not files:
+        return None, "Could not fetch PR files. The PR may not exist or may be private."
+
+    # Convert to unified diff
+    diff_content = pr_files_to_unified_diff(files)
+
+    if not diff_content:
+        return None, "No changes found in the PR"
+
+    return diff_content, None

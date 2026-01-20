@@ -1,0 +1,13 @@
+{
+  "name": "code-dojo-plugins",
+  "owner": {
+    "name": "Nathan Suberi"
+  },
+  "plugins": [
+    {
+      "name": "arch-pr-analyzer",
+      "source": "./plugins/arch-pr-analyzer",
+      "description": "Architectural analysis plugin for pull requests - visualizes codebase architecture changes with multi-granularity reports and diagrams"
+    }
+  ]
+}

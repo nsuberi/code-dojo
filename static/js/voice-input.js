@@ -20,6 +20,30 @@ class VoiceInput {
         this.durationInterval = null;
     }
 
+    getSupportedMimeType() {
+        // List of MIME types to try, in order of preference
+        const mimeTypes = [
+            'audio/webm;codecs=opus',      // Chrome, Firefox, Edge
+            'audio/webm',                   // Chrome, Firefox, Edge (fallback)
+            'audio/mp4;codecs=mp4a.40.2',  // Safari (AAC)
+            'audio/mp4',                    // Safari (fallback)
+            'audio/ogg;codecs=opus',        // Firefox
+            'audio/wav',                    // Most browsers (large files)
+        ];
+
+        // Find first supported MIME type
+        for (const mimeType of mimeTypes) {
+            if (MediaRecorder.isTypeSupported(mimeType)) {
+                console.log('Using MIME type:', mimeType);
+                return mimeType;
+            }
+        }
+
+        // If none are explicitly supported, return null (browser will choose)
+        console.log('No explicit MIME type supported, letting browser choose');
+        return null;
+    }
+
     async requestPermission() {
         try {
             this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -42,10 +66,14 @@ class VoiceInput {
         this.audioChunks = [];
         this.duration = 0;
 
-        // Create media recorder
-        this.mediaRecorder = new MediaRecorder(this.stream, {
-            mimeType: 'audio/webm;codecs=opus'
-        });
+        // Create media recorder with supported MIME type
+        const mimeType = this.getSupportedMimeType();
+        const options = mimeType ? { mimeType } : {};
+        this.mediaRecorder = new MediaRecorder(this.stream, options);
+
+        // Store the actual MIME type being used for blob creation
+        this.recordingMimeType = this.mediaRecorder.mimeType;
+        console.log('MediaRecorder started with MIME type:', this.recordingMimeType);
 
         this.mediaRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) {
@@ -105,11 +133,17 @@ class VoiceInput {
             return;
         }
 
-        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        // Use the MIME type that was actually used for recording
+        const audioBlob = new Blob(this.audioChunks, { type: this.recordingMimeType || 'audio/webm' });
 
         try {
+            // Use appropriate file extension based on MIME type
+            const extension = this.recordingMimeType?.includes('mp4') ? 'mp4' :
+                              this.recordingMimeType?.includes('ogg') ? 'ogg' :
+                              this.recordingMimeType?.includes('wav') ? 'wav' : 'webm';
+
             const formData = new FormData();
-            formData.append('audio', audioBlob, 'recording.webm');
+            formData.append('audio', audioBlob, `recording.${extension}`);
             if (this.sessionId) {
                 formData.append('session_id', this.sessionId);
             }
@@ -205,11 +239,11 @@ class VoiceInputModal {
 
                 <div class="voice-input-body">
                     <div class="voice-state voice-state-idle" id="voice-state-idle">
-                        <button class="voice-record-btn" id="voice-start-btn">
-                            <span class="mic-icon">🎤</span>
-                            <span>Tap to Start Recording</span>
-                        </button>
-                        <p class="voice-hint">Or <a href="#" id="voice-text-switch">type instead</a></p>
+                        <div class="recording-indicator">
+                            <span class="recording-dot"></span>
+                            <span class="recording-time" id="initial-recording-time">0:00</span>
+                        </div>
+                        <p class="voice-hint">Initializing microphone...</p>
                     </div>
 
                     <div class="voice-state voice-state-recording" id="voice-state-recording" style="display: none;">
@@ -335,7 +369,8 @@ class VoiceInputModal {
         if (state === 'transcribed') {
             const textEl = document.getElementById('transcription-text');
             if (textEl) {
-                textEl.value = this.transcription;
+                // Use data.transcription first (more reliable), fallback to this.transcription
+                textEl.value = data.transcription || this.transcription;
             }
         }
 
@@ -370,6 +405,233 @@ class VoiceInputModal {
     }
 }
 
+/**
+ * Inline Voice Input Component
+ * Provides inline recording experience without modal overlay
+ */
+class VoiceInputInline {
+    constructor(inputId, buttonId, options = {}) {
+        this.inputElement = document.getElementById(inputId);
+        this.buttonElement = document.getElementById(buttonId);
+        this.onTranscription = options.onTranscription || (() => {});
+        this.sessionId = options.sessionId;
+
+        this.voiceInput = null;
+        this.statusOverlay = null;
+        this.state = 'idle';
+
+        this.init();
+    }
+
+    init() {
+        if (!this.inputElement || !this.buttonElement) {
+            console.error('VoiceInputInline: Required elements not found');
+            return;
+        }
+
+        // Create status overlay element
+        this.createStatusOverlay();
+
+        // Attach button click handler
+        this.buttonElement.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.handleButtonClick();
+        });
+
+        // Initialize VoiceInput instance
+        this.voiceInput = new VoiceInput({
+            sessionId: this.sessionId,
+            onTranscription: (text, duration) => {
+                this.handleTranscription(text, duration);
+            },
+            onError: (error) => {
+                this.handleError(error);
+            },
+            onStateChange: (state, data) => {
+                this.handleStateChange(state, data);
+            }
+        });
+    }
+
+    createStatusOverlay() {
+        // Create overlay element
+        this.statusOverlay = document.createElement('div');
+        this.statusOverlay.className = 'voice-status-overlay';
+
+        // Insert before the form (parent of textarea)
+        const form = this.inputElement.closest('form');
+        if (form && form.parentNode) {
+            form.parentNode.insertBefore(this.statusOverlay, form);
+        }
+    }
+
+    handleButtonClick() {
+        if (this.state === 'idle') {
+            this.startRecording();
+        } else if (this.state === 'recording') {
+            this.stopRecording();
+        }
+    }
+
+    async startRecording() {
+        if (!this.voiceInput) return;
+
+        this.updateButtonState('recording');
+        await this.voiceInput.startRecording();
+    }
+
+    stopRecording() {
+        if (!this.voiceInput) return;
+
+        this.voiceInput.stopRecording();
+    }
+
+    updateButtonState(state) {
+        this.state = state;
+        this.buttonElement.setAttribute('data-state', state);
+
+        // Add/remove recording class for styling
+        if (state === 'recording') {
+            this.buttonElement.classList.add('recording');
+        } else {
+            this.buttonElement.classList.remove('recording');
+        }
+
+        // Disable button during processing
+        if (state === 'processing') {
+            this.buttonElement.disabled = true;
+        } else {
+            this.buttonElement.disabled = false;
+        }
+    }
+
+    showStatus(state, data = {}) {
+        if (!this.statusOverlay) return;
+
+        // Update overlay class
+        this.statusOverlay.className = 'voice-status-overlay active ' + state;
+
+        // Update content based on state
+        let content = '';
+
+        switch (state) {
+            case 'recording':
+                const duration = data.duration || 0;
+                const formattedTime = this.formatDuration(duration);
+                content = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="voice-recording-dot"></div>
+                        <span style="font-weight: 600;">Recording...</span>
+                        <span class="voice-recording-time">${formattedTime}</span>
+                    </div>
+                `;
+                break;
+
+            case 'processing':
+                content = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="voice-processing-spinner"></div>
+                        <span style="font-weight: 600;">Transcribing...</span>
+                    </div>
+                `;
+                break;
+
+            case 'error':
+                content = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 20px;">⚠️</span>
+                        <span style="font-weight: 600;">${data.message || 'An error occurred'}</span>
+                    </div>
+                `;
+                break;
+
+            default:
+                // Hide overlay for idle/transcribed states
+                this.statusOverlay.classList.remove('active');
+                return;
+        }
+
+        this.statusOverlay.innerHTML = content;
+    }
+
+    handleStateChange(state, data = {}) {
+        console.log('VoiceInputInline state change:', state, data);
+
+        switch (state) {
+            case 'recording':
+                this.updateButtonState('recording');
+                this.showStatus('recording', data);
+                break;
+
+            case 'processing':
+                this.updateButtonState('processing');
+                this.showStatus('processing');
+                break;
+
+            case 'transcribed':
+                this.updateButtonState('idle');
+                this.showStatus('idle');
+                break;
+
+            case 'error':
+                this.updateButtonState('idle');
+                this.showStatus('error', data);
+                // Auto-hide error after 5 seconds
+                setTimeout(() => {
+                    if (this.state === 'idle') {
+                        this.showStatus('idle');
+                    }
+                }, 5000);
+                break;
+
+            case 'idle':
+                this.updateButtonState('idle');
+                this.showStatus('idle');
+                break;
+        }
+    }
+
+    handleTranscription(text, duration) {
+        // Populate textarea directly
+        this.inputElement.value = text;
+
+        // Focus the textarea so user can edit if needed
+        this.inputElement.focus();
+
+        // Call the onTranscription callback
+        this.onTranscription(text, duration);
+    }
+
+    handleError(error) {
+        console.error('VoiceInputInline error:', error);
+
+        const errorMessages = {
+            'Microphone permission denied': 'Microphone access denied. Please enable in browser settings.',
+            'Failed to process recording': 'Connection failed. Please try again.',
+            'No speech detected': 'No speech detected. Please speak clearly.'
+        };
+
+        const message = errorMessages[error] || error;
+        this.handleStateChange('error', { error, message });
+    }
+
+    formatDuration(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    destroy() {
+        if (this.voiceInput) {
+            this.voiceInput.destroy();
+        }
+        if (this.statusOverlay && this.statusOverlay.parentNode) {
+            this.statusOverlay.parentNode.removeChild(this.statusOverlay);
+        }
+    }
+}
+
 // Export for use
 window.VoiceInput = VoiceInput;
 window.VoiceInputModal = VoiceInputModal;
+window.VoiceInputInline = VoiceInputInline;

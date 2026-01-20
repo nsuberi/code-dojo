@@ -91,22 +91,22 @@
             <section class="content-card">
                 <h2>Tutorial Video</h2>
                 {% if goal.video_url %}
-                    <div class="video-container">
-                        <iframe
-                            src="{{ goal.video_url.replace('watch?v=', 'embed/') }}"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                    <p class="video-hint">Watch the tutorial to understand the concepts, then move to the Plan tab to build your approach.</p>
+                <div class="video-container">
+                    <iframe src="{{ goal.video_url.replace('watch?v=', 'embed/') }}" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                <p class="video-hint">Watch the tutorial to understand the concepts, then move to the Plan tab to build
+                    your approach.</p>
                 {% else %}
-                    <p class="empty-state">No video available for this challenge.</p>
+                <p class="empty-state">No video available for this challenge.</p>
                 {% endif %}
                 <div class="tab-navigation-hint">
                     <button class="btn btn-primary" onclick="switchTab('challenge')">
                         Continue to Challenge
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
@@ -124,22 +124,24 @@
                 </div>
 
                 {% if goal.starter_repo %}
-                    <div class="starter-repo">
-                        <h3>Starter Repository</h3>
-                        <p>Fork or clone this repository to get started:</p>
-                        <a href="{{ goal.starter_repo }}" target="_blank" class="repo-link">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                            </svg>
-                            {{ goal.starter_repo }}
-                        </a>
-                    </div>
+                <div class="starter-repo">
+                    <h3>Starter Repository</h3>
+                    <p>Fork or clone this repository to get started:</p>
+                    <a href="{{ goal.starter_repo }}" target="_blank" class="repo-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                        </svg>
+                        {{ goal.starter_repo }}
+                    </a>
+                </div>
                 {% endif %}
 
                 <div class="tab-navigation-hint">
                     <button class="btn btn-primary" onclick="switchTab('plan')">
                         Plan Your Approach
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
@@ -153,7 +155,8 @@
             <div class="planning-harness" id="planning-harness" data-goal-id="{{ goal.id }}">
                 <div class="planning-header">
                     <div class="planning-header-content">
-                        <img src="{{ url_for('static', filename='images/sensei-avatar.png') }}" alt="Digi-Trainer" class="sensei-avatar" onerror="this.style.display='none'">
+                        <img src="{{ url_for('static', filename='assets/socratic-sensei.png') }}" alt="Digi-Trainer"
+                            class="sensei-avatar" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22%3E%3Crect fill=%22%23667eea%22 width=%2264%22 height=%2264%22 rx=%2232%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2232%22%3ED%3C/text%3E%3C/svg%3E'">
                         <div>
                             <h2>Plan Your Approach</h2>
                             <p>Build your implementation plan with the Digi-Trainer before you start coding.</p>
@@ -168,21 +171,21 @@
                             <div class="planning-welcome">
                                 <div class="sensei-message">
                                     <p>Hello! I'm your Digi-Trainer. Let's build your implementation plan together.</p>
-                                    <p>Before you start coding, let's think through the key concepts you'll need to address. What's your initial approach to this challenge?</p>
+                                    <p>Before you start coding, let's think through the key concepts you'll need to
+                                        address. What's your initial approach to this challenge?</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="planning-input-area">
                             <form id="planning-form" class="planning-input-form">
-                                <textarea
-                                    id="planning-input"
+                                <textarea id="planning-input"
                                     placeholder="Share your thoughts on how you'd approach this challenge..."
-                                    rows="3"
-                                ></textarea>
+                                    rows="3"></textarea>
                                 <div class="planning-input-actions">
                                     <button type="submit" class="btn btn-primary" id="send-planning-btn">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
                                             <line x1="22" y1="2" x2="11" y2="13"></line>
                                             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                                         </svg>
@@ -198,7 +201,8 @@
                         <!-- Coverage Checkmarks -->
                         <div class="coverage-card">
                             <h3>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                 </svg>
@@ -215,7 +219,8 @@
                         <div class="plan-preview-card">
                             <div class="plan-preview-header">
                                 <h3>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                         <polyline points="14 2 14 8 20 8"></polyline>
                                     </svg>
@@ -223,27 +228,32 @@
                                 </h3>
                                 <div class="plan-preview-actions">
                                     <button class="btn btn-small" id="edit-plan-btn" title="Edit Plan">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                         </svg>
                                     </button>
-                                    <button class="btn btn-small" id="generate-plan-btn" title="Generate Plan from Chat">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <button class="btn btn-small" id="generate-plan-btn"
+                                        title="Generate Plan from Chat">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
                                             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                                         </svg>
                                     </button>
                                 </div>
                             </div>
                             <div class="plan-preview-content" id="plan-preview-content">
-                                <p class="empty-plan">Your plan will appear here as you discuss your approach with the Sensei.</p>
+                                <p class="empty-plan">Your plan will appear here as you discuss your approach with the
+                                    Digi Trainer.</p>
                             </div>
                         </div>
 
                         <!-- Export Actions -->
                         <div class="plan-export-actions">
                             <button class="btn btn-secondary btn-block" id="export-plan-btn">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                     <polyline points="7 10 12 15 17 10"></polyline>
                                     <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -261,7 +271,8 @@
                     </button>
                     <button class="btn btn-primary" onclick="switchTab('submit')">
                         I'm Ready to Submit
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
@@ -275,38 +286,53 @@
             <section class="content-card">
                 <h2>Submit Your Solution</h2>
                 {% if current_user.is_authenticated %}
-                    <p class="submit-intro">Ready to submit? Enter your GitHub repository URL and branch below.</p>
-                    <form method="POST" action="{{ url_for('submissions.create_submission') }}" class="submission-form">
-                        <input type="hidden" name="goal_id" value="{{ goal.id }}">
+                <p class="submit-intro">Ready to submit? Enter your GitHub Pull Request URL below.</p>
+                <form method="POST" action="{{ url_for('submissions.create_submission') }}" class="submission-form">
+                    <input type="hidden" name="goal_id" value="{{ goal.id }}">
 
-                        <div class="form-group">
-                            <label for="repo_url">Your GitHub Repository URL</label>
-                            <input type="url" id="repo_url" name="repo_url" required
-                                   placeholder="https://github.com/yourusername/your-repo">
-                            <small>Enter the full URL to your GitHub repository with your solution.</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="branch">Branch Name</label>
-                            <input type="text" id="branch" name="branch" value="main"
-                                   placeholder="main">
-                            <small>The branch containing your solution (default: main).</small>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 2L11 13"></path>
-                                <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
-                            </svg>
-                            Submit for Review
-                        </button>
-                    </form>
-                {% else %}
-                    <div class="login-prompt">
-                        <p>Please log in to submit your solution.</p>
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
-                        <a href="{{ url_for('auth.signup') }}" class="btn btn-secondary">Sign Up</a>
+                    <div class="form-group">
+                        <label for="pr_url">GitHub Pull Request URL</label>
+                        <input type="url"
+                               id="pr_url"
+                               name="pr_url"
+                               required
+                               placeholder="https://github.com/username/repo/pull/123"
+                               pattern="https://github\.com/[^/]+/[^/]+/pull/[0-9]+">
+                        <small>
+                            Enter the full URL to your GitHub Pull Request.
+                            Example: <code>https://github.com/username/repo/pull/123</code>
+                        </small>
                     </div>
+
+                    <!-- PR Preview Container (populated by JavaScript) -->
+                    <div id="pr-preview" class="pr-preview" style="display:none;">
+                        <div class="pr-preview-header">
+                            <span class="pr-preview-label">Preview:</span>
+                            <span id="pr-preview-status" class="pr-status-badge"></span>
+                        </div>
+                        <div id="pr-preview-content" class="pr-preview-body">
+                            <!-- Populated by pr-preview.js -->
+                        </div>
+                        <div id="pr-preview-error" class="pr-preview-error" style="display:none;">
+                            <!-- Error messages -->
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" id="submit-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M22 2L11 13"></path>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                        </svg>
+                        Submit for Review
+                    </button>
+                </form>
+                {% else %}
+                <div class="login-prompt">
+                    <p>Please log in to submit your solution.</p>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
+                    <a href="{{ url_for('auth.signup') }}" class="btn btn-secondary">Sign Up</a>
+                </div>
                 {% endif %}
             </section>
         </div>
@@ -316,7 +342,8 @@
             <div class="review-harness">
                 <div class="review-header">
                     <div class="review-header-content">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <path d="M9 11l3 3L22 4"></path>
                             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                         </svg>
@@ -329,124 +356,203 @@
 
                 <div class="review-content">
                     {% if latest_submission %}
-                        <!-- Section 1: Submission Status (Collapsible) -->
-                        <div class="review-card collapsible-card">
-                            <div class="card-header" onclick="toggleCollapse(this)">
-                                <h3>
-                                    <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                    Submission Status
-                                </h3>
-                                <div class="status-badge status-{{ latest_submission.status }}">
-                                    {{ latest_submission.status | replace('_', ' ') | title }}
-                                </div>
-                            </div>
-                            <div class="card-content">
-                                <div class="submission-status-display">
-                                    <div class="submission-details">
-                                        <p><strong>Repository:</strong> <a href="{{ latest_submission.repo_url }}" target="_blank">{{ latest_submission.repo_url }}</a></p>
-                                        <p><strong>Branch:</strong> {{ latest_submission.branch }}</p>
-                                        <p><strong>Submitted:</strong> {{ latest_submission.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- Section 1: Pull Request Information (Collapsible) -->
+                    <div class="review-card collapsible-card">
+                        <div class="card-header" onclick="toggleCollapse(this)">
+                            <h3>
+                                <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                                Pull Request Information
+                            </h3>
+                            <span class="pr-status-badge status-{{ latest_submission.pr_state }}">
+                                {{ latest_submission.pr_state | upper }}
+                            </span>
                         </div>
-
-                        <!-- Section 2: AI Feedback (Collapsible) -->
-                        <div class="review-card collapsible-card">
-                            <div class="card-header" onclick="toggleCollapse(this)">
-                                <h3>
-                                    <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                    AI Feedback
-                                </h3>
-                            </div>
-                            <div class="card-content">
-                            {% if latest_submission.ai_feedback %}
-                                {% if latest_submission.ai_feedback.detected_approach %}
-                                    <div class="detected-approach-badge">
-                                        <span class="badge-label">You used:</span>
-                                        <span class="badge-value">{{ latest_submission.ai_feedback.detected_approach | replace('_', ' ') | title }} Authentication</span>
-                                    </div>
-                                {% endif %}
-                                <div class="ai-feedback-content markdown-content">
-                                    {{ latest_submission.ai_feedback.content | markdown }}
-                                </div>
-                                {% if latest_submission.ai_feedback.alternative_approaches_json %}
-                                    <details class="alternatives-section">
-                                        <summary>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <polyline points="6 9 12 15 18 9"></polyline>
-                                            </svg>
-                                            Other Valid Approaches
-                                        </summary>
-                                        <div class="alternatives-content">
-                                            <!-- Populated from JSON by JavaScript -->
+                        <div class="card-content">
+                            <div class="pr-info-card">
+                                <div class="pr-header">
+                                    <div class="pr-title-row">
+                                        <h4 class="pr-title">
+                                            <a href="{{ latest_submission.pr_url }}" target="_blank">
+                                                {{ latest_submission.pr_title }}
+                                            </a>
+                                        </h4>
+                                        <div class="status-badge status-{{ latest_submission.status }}">
+                                            {{ latest_submission.status | replace('_', ' ') | title }}
                                         </div>
-                                    </details>
-                                {% endif %}
-                            {% else %}
-                                <div class="ai-feedback-pending">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <polyline points="12 6 12 12 16 14"></polyline>
-                                    </svg>
-                                    <p>AI feedback is being generated. Please check back soon.</p>
-                                </div>
-                            {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Section 2.5: Code Diff (Collapsible) -->
-                        {% if latest_submission %}
-                        <div class="review-card collapsible-card collapsed">
-                            <div class="card-header" onclick="toggleCollapse(this)">
-                                <h3>
-                                    <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                    View Your Code Changes
-                                </h3>
-                            </div>
-                            <div class="card-content">
-                                <div class="diff-viewer">
-                                    <p class="diff-hint">Loading diff from GitHub...</p>
-                                    <div id="diff-content" class="diff-content"></div>
-                                    <button class="btn btn-secondary" onclick="loadDiffContent({{ latest_submission.id }})">Load Diff</button>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- Section 3: Digi-Trainer Gem-Based Review Widget -->
-                        <div class="review-card collapsible-card">
-                            <div class="card-header" onclick="toggleCollapse(this)">
-                                <h3>
-                                    <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                    Digi-Trainer
-                                </h3>
-                            </div>
-                            <div class="card-content">
-                                <div class="digi-trainer-header">
-                                    <img src="{{ url_for('static', filename='images/sensei-avatar.png') }}" alt="Digi-Trainer" class="digi-trainer-avatar" onerror="this.style.display='none'">
-                                    <div>
-                                        <p class="digi-trainer-intro">Before meeting with your Sensei, practice explaining your code. The Digi-Trainer helps you build the foundation—like training with a wooden dummy—so when you work with your Sensei, you're ready for the real thing.</p>
+                                    </div>
+                                    <div class="pr-meta">
+                                        <span class="pr-number">#{{ latest_submission.pr_number }}</span>
+                                        <span class="pr-timestamp">Submitted {{ latest_submission.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
                                     </div>
                                 </div>
+
+                                <!-- PR Stats (populated by JavaScript) -->
+                                <div class="pr-stats" id="pr-stats-{{ latest_submission.id }}" data-submission-id="{{ latest_submission.id }}">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Files Changed</span>
+                                        <span class="stat-value" data-stat="files">Loading...</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Additions</span>
+                                        <span class="stat-value text-success" data-stat="additions">+0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Deletions</span>
+                                        <span class="stat-value text-danger" data-stat="deletions">-0</span>
+                                    </div>
+                                </div>
+
+                                <a href="{{ latest_submission.pr_url }}" target="_blank" class="btn btn-secondary btn-sm">
+                                    View on GitHub →
+                                </a>
+
+                                <!-- Code Changes Section -->
+                                <div class="code-changes-section" style="margin-top: 1.5rem;">
+                                    <h4 style="margin-bottom: 1rem; font-size: 1rem; font-weight: 600;">Code Changes</h4>
+
+                                    <!-- File List (populated by JavaScript) -->
+                                    <div id="file-list" style="display:none;">
+                                        <!-- File tree goes here -->
+                                    </div>
+
+                                    <!-- Diff Viewer (populated by JavaScript) -->
+                                    <div id="diff-viewer">
+                                        <div class="loading-placeholder" style="padding: 2rem; text-align: center; color: #64748b;">
+                                            Loading code changes...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Digi-Trainer with Integrated Feedback -->
+                    <div class="review-card collapsible-card">
+                        <div class="card-header" onclick="toggleCollapse(this)">
+                            <h3>
+                                <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                                Digi-Trainer
+                            </h3>
+                        </div>
+                        <div class="card-content">
+
+                            <!-- Component 1: High-Level Feedback Speech Bubble -->
+                            <details class="feedback-collapsible" open>
+                                <summary class="feedback-summary">
+                                    <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                    <span>High-Level Feedback</span>
+                                </summary>
+                                <div class="digi-trainer-feedback-wrapper">
+                                    <img src="{{ url_for('static', filename='assets/socratic-sensei.png') }}"
+                                        alt="Digi-Trainer"
+                                        class="digi-trainer-avatar-large"
+                                        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22%3E%3Crect fill=%22%23667eea%22 width=%2264%22 height=%2264%22 rx=%2232%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2232%22%3ED%3C/text%3E%3C/svg%3E'">
+
+                                    {% if latest_submission.ai_feedback %}
+                                    <div class="feedback-scroll-container">
+                                        <div class="speech-bubble">
+                                        <!-- Detected Approach Badge -->
+                                        {% if latest_submission.ai_feedback.detected_approach %}
+                                        <div class="detected-approach-badge">
+                                            <span class="badge-label">You used:</span>
+                                            <span class="badge-value">
+                                                {{ latest_submission.ai_feedback.detected_approach | replace('_', ' ') | title }} Authentication
+                                            </span>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Main Feedback Content -->
+                                        <div class="feedback-text markdown-content">
+                                            {{ latest_submission.ai_feedback.content | markdown }}
+                                        </div>
+
+                                        <!-- Alternative Approaches -->
+                                        {% if latest_submission.ai_feedback.alternative_approaches_json %}
+                                        <details class="alternatives-section">
+                                            <summary>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2">
+                                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                                </svg>
+                                                Other Valid Approaches
+                                            </summary>
+                                            <div class="alternatives-content">
+                                                <!-- Populated from JSON by JavaScript -->
+                                            </div>
+                                        </details>
+                                        {% endif %}
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <!-- Pending State with Progress Tracking -->
+                                    <div class="speech-bubble feedback-pending">
+                                        <div class="analysis-progress" id="analysis-progress-{{ submission.id }}"
+                                             data-submission-id="{{ submission.id }}">
+
+                                            <div class="progress-header">
+                                                <h4>Analyzing Your Submission</h4>
+                                                <span class="progress-percentage">0%</span>
+                                            </div>
+
+                                            <div class="progress-bar-container">
+                                                <div class="progress-bar-fill" style="width: 0%"></div>
+                                            </div>
+
+                                            <div class="progress-steps">
+                                                <div class="step" data-step="initialize">
+                                                    <span class="step-icon">○</span>
+                                                    <span class="step-label">Initializing</span>
+                                                </div>
+                                                <div class="step" data-step="run_basic_review">
+                                                    <span class="step-icon">○</span>
+                                                    <span class="step-label">Analyzing Code</span>
+                                                </div>
+                                                <div class="step" data-step="run_arch_analysis">
+                                                    <span class="step-icon">○</span>
+                                                    <span class="step-label">Architecture Review</span>
+                                                </div>
+                                                <div class="step" data-step="synthesize">
+                                                    <span class="step-icon">○</span>
+                                                    <span class="step-label">Creating Feedback</span>
+                                                </div>
+                                            </div>
+
+                                            <p class="current-step-description">Setting up analysis...</p>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </details>
+
+                            <!-- Divider -->
+                            <div class="section-divider"></div>
+
+                            <!-- Component 2: Core Learning Goals & Conversation -->
+                            <div class="core-goals-section">
+                                <h4 class="section-title">Core Learning Goals</h4>
+                                <p class="section-description">
+                                    Click a topic to dive deeper with the Digi-Trainer:
+                                </p>
 
                                 <!-- Gems Progress Display -->
-                                <div class="gems-progress-container" id="gems-container" data-submission-id="{{ latest_submission.id }}" data-goal-id="{{ goal.id }}">
-                                    <h4>Core Learning Goals</h4>
-                                    <div class="gems-row" id="gems-row">
-                                    {% for clg in core_learning_goals %}
+                                <div class="gems-progress-container">
+                                    {% if core_learning_goals %}
+                                    <div id="gems-container" class="gems-row"
+                                         data-submission-id="{{ latest_submission.id }}"
+                                         data-goal-id="{{ goal.id }}">
+                                        {% for clg in core_learning_goals %}
                                         {% set progress = goal_progress | selectattr('core_goal_id', 'equalto', clg.id) | first %}
                                         <div class="gem-item {% if progress and progress.passed %}passed{% elif progress and progress.engaged %}engaged{% else %}locked{% endif %}"
-                                             data-goal-id="{{ clg.id }}"
-                                             data-title="{{ clg.title }}">
+                                            data-goal-id="{{ clg.id }}" data-title="{{ clg.title }}">
                                             <span class="gem-icon">
                                                 {% if progress and progress.passed %}💎
                                                 {% elif progress and progress.engaged %}🔵
@@ -455,10 +561,14 @@
                                             </span>
                                             <span class="gem-title">{{ clg.title }}</span>
                                         </div>
-                                    {% endfor %}
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <div class="no-goals-message" style="padding: 2rem; text-align: center; color: #64748b;">
+                                        <p>No core learning goals defined for this challenge yet.</p>
+                                    </div>
+                                    {% endif %}
                                 </div>
-                                <p class="gems-hint">Click a topic to practice with the Digi-Trainer</p>
-                            </div>
 
                             <!-- Digi-Trainer Chat Interface (hidden by default) -->
                             <div class="digi-trainer-chat" id="digi-trainer-chat" style="display: none;">
@@ -468,16 +578,28 @@
                                 </div>
                                 <div class="chat-messages" id="digi-trainer-messages">
                                 </div>
-                                <div class="chat-input-area">
+                                <!-- Voice Status Overlay will be inserted here by JavaScript -->
+                                <div class="chat-input-area" style="position: relative;">
                                     <form id="digi-trainer-form">
-                                        <textarea id="digi-trainer-input" placeholder="Explain your understanding of this concept..." rows="3"></textarea>
+                                        <textarea id="digi-trainer-input"
+                                            placeholder="Explain your understanding of this concept..."
+                                            rows="3"></textarea>
                                         <div class="chat-input-actions">
-                                            <button type="button" class="btn btn-secondary" id="voice-input-btn" title="Voice Input">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                            <button type="button" class="btn btn-secondary" id="voice-input-btn"
+                                                data-state="idle" title="Voice Input">
+                                                <!-- Microphone icon (default) -->
+                                                <svg class="icon-microphone" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z">
+                                                    </path>
                                                     <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                                                     <line x1="12" y1="19" x2="12" y2="23"></line>
                                                     <line x1="8" y1="23" x2="16" y2="23"></line>
+                                                </svg>
+                                                <!-- Stop icon (hidden, shown during recording) -->
+                                                <svg class="icon-stop" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                                                    style="display: none;">
+                                                    <rect x="6" y="6" width="12" height="12" fill="currentColor"/>
                                                 </svg>
                                             </button>
                                             <button type="submit" class="btn btn-primary" id="send-digi-trainer-btn">
@@ -487,83 +609,97 @@
                                     </form>
                                 </div>
                                 <div class="chat-footer">
-                                    <button class="btn btn-secondary" onclick="endDigiTrainerDiscussion()">End Discussion</button>
+                                    <button class="btn btn-secondary" onclick="endDigiTrainerDiscussion()">End
+                                        Discussion</button>
                                 </div>
                             </div>
-                            </div>
+                            </div> <!-- End core-goals-section -->
                         </div>
+                    </div>
 
-                        <!-- Section 4: Sensei Session Request (Collapsible) -->
-                        <div class="review-card collapsible-card collapsed">
-                            <div class="card-header" onclick="toggleCollapse(this)">
-                                <h3>
-                                    <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                    Schedule a Sensei Session
-                                </h3>
-                            </div>
-                            <div class="card-content">
+                    <!-- Section 3: Sensei Session Request (Collapsible) -->
+                    <div class="review-card collapsible-card collapsed">
+                        <div class="card-header" onclick="toggleCollapse(this)">
+                            <h3>
+                                <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                                Schedule a Sensei Session
+                            </h3>
+                        </div>
+                        <div class="card-content">
                             <div class="sensei-session-section" id="sensei-session-section">
-                                {% set gems_engaged = goal_progress | selectattr('engaged', 'equalto', true) | list | length %}
+                                {% set gems_engaged = goal_progress | selectattr('engaged', 'equalto', true) | list |
+                                length %}
                                 {% if gems_engaged >= 1 %}
-                                    <div class="sensei-unlocked">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                                            <path d="M2 17l10 5 10-5"></path>
-                                            <path d="M2 12l10 5 10-5"></path>
-                                        </svg>
-                                        <div>
-                                            <p>Your Sensei is here to help you level up. They'll assess where you are in your learning journey, identify concepts you're still working to embody, and suggest your next training exercises.</p>
-                                            <a href="{{ url_for('scheduling.book_session', goal_id=goal.id) }}" class="btn btn-primary">Schedule a Sensei Session</a>
-                                        </div>
+                                <div class="sensei-unlocked">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                        <path d="M2 17l10 5 10-5"></path>
+                                        <path d="M2 12l10 5 10-5"></path>
+                                    </svg>
+                                    <div>
+                                        <p>Your Sensei is here to help you level up. They'll assess where you are in
+                                            your learning journey, identify concepts you're still working to embody, and
+                                            suggest your next training exercises.</p>
+                                        <a href="{{ url_for('scheduling.book_session', goal_id=goal.id) }}"
+                                            class="btn btn-primary">Schedule a Sensei Session</a>
                                     </div>
+                                </div>
                                 {% else %}
-                                    <div class="sensei-locked">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                        </svg>
-                                        <div>
-                                            <p><strong>Sensei Session Locked</strong></p>
-                                            <p>Engage with at least one Digi-Trainer topic to unlock the ability to schedule a Sensei session.</p>
-                                        </div>
+                                <div class="sensei-locked">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                    <div>
+                                        <p><strong>Sensei Session Locked</strong></p>
+                                        <p>Engage with at least one Digi-Trainer topic to unlock the ability to schedule
+                                            a Sensei session.</p>
                                     </div>
+                                </div>
                                 {% endif %}
                             </div>
-                            </div>
                         </div>
+                    </div>
 
-                        <!-- Section 5: Sensei Feedback (if session completed, Collapsible) -->
-                        {% if latest_submission.sensei_evaluation %}
-                        <div class="review-card collapsible-card collapsed">
-                            <div class="card-header" onclick="toggleCollapse(this)">
-                                <h3>
-                                    <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                    Sensei Feedback
-                                </h3>
-                            </div>
-                            <div class="card-content">
+                    <!-- Section 5: Sensei Feedback (if session completed, Collapsible) -->
+                    {% if latest_submission.sensei_evaluation %}
+                    <div class="review-card collapsible-card collapsed">
+                        <div class="card-header" onclick="toggleCollapse(this)">
+                            <h3>
+                                <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                                Sensei Feedback
+                            </h3>
+                        </div>
+                        <div class="card-content">
                             <div class="sensei-feedback">
                                 <div class="journey-stage">
                                     <span class="stage-label">Journey Stage:</span>
-                                    <span class="stage-value">{{ latest_submission.sensei_evaluation.journey_stage | title }}</span>
+                                    <span class="stage-value">{{ latest_submission.sensei_evaluation.journey_stage |
+                                        title }}</span>
                                 </div>
                                 {% if latest_submission.sensei_evaluation.session_notes %}
-                                    <div class="session-notes markdown-content">
-                                        {{ latest_submission.sensei_evaluation.session_notes | markdown }}
-                                    </div>
+                                <div class="session-notes markdown-content">
+                                    {{ latest_submission.sensei_evaluation.session_notes | markdown }}
+                                </div>
                                 {% endif %}
                                 {% if latest_submission.sensei_evaluation.certification_granted %}
-                                    <div class="certification-badge">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <circle cx="12" cy="8" r="7"></circle>
-                                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                        </svg>
-                                        <span>{{ latest_submission.sensei_evaluation.certification_level | title }} Certification Achieved!</span>
-                                    </div>
+                                <div class="certification-badge">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="8" r="7"></circle>
+                                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                                    </svg>
+                                    <span>{{ latest_submission.sensei_evaluation.certification_level | title }}
+                                        Certification Achieved!</span>
+                                </div>
                                 {% endif %}
                             </div>
 
@@ -573,26 +709,27 @@
                                 <p>Based on your session with Sensei, here are your next training exercises:</p>
                                 <!-- Populated dynamically -->
                             </div>
-                            </div>
                         </div>
-                        {% endif %}
+                    </div>
+                    {% endif %}
 
                     {% else %}
-                        <!-- No submission yet -->
-                        <div class="review-card no-submission-card">
-                            <div class="no-submission-message">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                                    <polyline points="10 9 9 9 8 9"></polyline>
-                                </svg>
-                                <h3>No Submission Yet</h3>
-                                <p>Complete the challenge and submit your solution to see your review feedback.</p>
-                                <button class="btn btn-primary" onclick="switchTab('challenge')">Go to Challenge</button>
-                            </div>
+                    <!-- No submission yet -->
+                    <div class="review-card no-submission-card">
+                        <div class="no-submission-message">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            <h3>No Submission Yet</h3>
+                            <p>Complete the challenge and submit your solution to see your review feedback.</p>
+                            <button class="btn btn-primary" onclick="switchTab('challenge')">Go to Challenge</button>
                         </div>
+                    </div>
                     {% endif %}
                 </div>
 
@@ -602,7 +739,8 @@
                     </button>
                     <a href="{{ url_for('modules.module_detail', module_id=module.id) }}" class="btn btn-primary">
                         View All Goals
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
@@ -631,1219 +769,1228 @@
 </div>
 
 <style>
-/* Challenge Page Specific Styles */
-.challenge-page {
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.challenge-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.challenge-header h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.challenge-subtitle {
-    color: var(--text-secondary);
-    font-size: 1.1rem;
-}
-
-/* Workflow Progress */
-.workflow-progress {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background: var(--card-bg);
-    border-radius: 0.5rem;
-    box-shadow: var(--shadow);
-}
-
-.workflow-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.workflow-step .step-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #e2e8f0;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.workflow-step.active .step-icon,
-.workflow-step.completed .step-icon {
-    background: var(--primary-color);
-    color: white;
-}
-
-.workflow-step.completed .step-icon {
-    background: var(--success-color);
-}
-
-.workflow-step span {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-}
-
-.workflow-step.active span {
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.workflow-connector {
-    width: 60px;
-    height: 2px;
-    background: #e2e8f0;
-    margin: 0 0.5rem;
-}
-
-/* Tab Navigation */
-.challenge-tabs {
-    display: flex;
-    gap: 0.25rem;
-    background: #f1f5f9;
-    padding: 0.25rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.tab-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: transparent;
-    border: none;
-    border-radius: 0.375rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.tab-btn:hover {
-    background: rgba(255, 255, 255, 0.5);
-    color: var(--text-primary);
-}
-
-.tab-btn.active {
-    background: white;
-    color: var(--primary-color);
-    box-shadow: var(--shadow);
-}
-
-.tab-btn svg {
-    flex-shrink: 0;
-}
-
-/* Tab Content */
-.tab-pane {
-    display: none;
-}
-
-.tab-pane.active {
-    display: block;
-}
-
-.content-card {
-    background: var(--card-bg);
-    border-radius: 0.5rem;
-    box-shadow: var(--shadow);
-    padding: 2rem;
-}
-
-.content-card h2 {
-    margin-bottom: 1.5rem;
-}
-
-.video-hint {
-    margin-top: 1rem;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-}
-
-.tab-navigation-hint {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-    text-align: right;
-}
-
-.tab-navigation-hint .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* Planning Harness */
-.planning-harness {
-    background: var(--card-bg);
-    border-radius: 0.5rem;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-}
-
-.planning-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 1.5rem 2rem;
-}
-
-.planning-header-content {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.sensei-avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-}
-
-.planning-header h2 {
-    margin: 0 0 0.25rem 0;
-}
-
-.planning-header p {
-    margin: 0;
-    opacity: 0.9;
-    font-size: 0.95rem;
-}
-
-.planning-layout {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    min-height: 500px;
-}
-
-/* Chat Panel */
-.planning-chat-panel {
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--border-color);
-}
-
-.planning-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1.5rem;
-    background: #f8fafc;
-}
-
-.planning-welcome {
-    margin-bottom: 1rem;
-}
-
-.sensei-message {
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 1rem;
-    border-top-left-radius: 0.25rem;
-    padding: 1rem 1.25rem;
-    max-width: 85%;
-}
-
-.sensei-message p {
-    margin: 0 0 0.75rem 0;
-}
-
-.sensei-message p:last-child {
-    margin-bottom: 0;
-}
-
-.user-message {
-    background: var(--primary-color);
-    color: white;
-    border-radius: 1rem;
-    border-top-right-radius: 0.25rem;
-    padding: 1rem 1.25rem;
-    max-width: 85%;
-    margin-left: auto;
-    margin-top: 1rem;
-}
-
-.planning-input-area {
-    padding: 1rem 1.5rem;
-    background: white;
-    border-top: 1px solid var(--border-color);
-}
-
-.planning-input-form textarea {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    font-family: inherit;
-    font-size: 0.95rem;
-    resize: none;
-    margin-bottom: 0.75rem;
-}
-
-.planning-input-form textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.planning-input-actions {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.planning-input-actions .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* Sidebar */
-.planning-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: #f8fafc;
-    overflow-y: auto;
-}
-
-.coverage-card,
-.plan-preview-card {
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    overflow: hidden;
-}
-
-.coverage-card h3,
-.plan-preview-header h3 {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    margin: 0;
-    padding: 0.75rem 1rem;
-    background: #f1f5f9;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.coverage-count {
-    margin-left: auto;
-    background: var(--primary-color);
-    color: white;
-    padding: 0.125rem 0.5rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-}
-
-.coverage-list {
-    padding: 0.75rem;
-}
-
-.coverage-loading {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    text-align: center;
-    padding: 1rem;
-}
-
-.coverage-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.85rem;
-    margin-bottom: 0.25rem;
-}
-
-.coverage-item:last-child {
-    margin-bottom: 0;
-}
-
-.coverage-item.covered {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.coverage-item .check-icon {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.coverage-item:not(.covered) .check-icon {
-    border: 2px solid #d1d5db;
-}
-
-.coverage-item.covered .check-icon {
-    background: var(--success-color);
-    color: white;
-}
-
-/* Plan Preview */
-.plan-preview-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-right: 0.5rem;
-}
-
-.plan-preview-actions {
-    display: flex;
-    gap: 0.25rem;
-}
-
-.plan-preview-actions .btn {
-    padding: 0.25rem 0.5rem;
-    background: transparent;
-    border: 1px solid transparent;
-}
-
-.plan-preview-actions .btn:hover {
-    background: #e2e8f0;
-    border-color: var(--border-color);
-}
-
-.plan-preview-content {
-    padding: 1rem;
-    min-height: 150px;
-    max-height: 300px;
-    overflow-y: auto;
-    font-size: 0.85rem;
-    line-height: 1.6;
-}
-
-.empty-plan {
-    color: var(--text-secondary);
-    font-style: italic;
-}
-
-/* Export Actions */
-.plan-export-actions {
-    margin-top: auto;
-}
-
-.plan-export-actions .btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.export-hint {
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    text-align: center;
-}
-
-/* Planning Footer */
-.planning-footer {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-    background: white;
-    border-top: 1px solid var(--border-color);
-}
-
-.planning-footer .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* Submit Tab */
-.submit-intro {
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-}
-
-.submission-form .btn-lg {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-/* Starter Repo */
-.starter-repo {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.repo-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: #f1f5f9;
-    padding: 0.75rem 1rem;
-    border-radius: 0.375rem;
-    color: var(--primary-color);
-    text-decoration: none;
-    font-family: monospace;
-    margin-top: 0.5rem;
-}
-
-.repo-link:hover {
-    background: #e2e8f0;
-}
-
-/* Plan Editor Modal */
-.plan-editor-modal {
-    background: white;
-    border-radius: 0.75rem;
-    width: 90%;
-    max-width: 700px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    transform: translateY(20px);
-    transition: transform 0.3s;
-}
-
-.modal-overlay.active .plan-editor-modal {
-    transform: translateY(0);
-}
-
-.plan-editor-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.plan-editor-header h3 {
-    margin: 0;
-}
-
-.modal-close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text-secondary);
-    line-height: 1;
-}
-
-.plan-editor-content {
-    padding: 1.5rem;
-    flex: 1;
-    overflow: hidden;
-}
-
-#plan-editor-textarea {
-    width: 100%;
-    height: 300px;
-    padding: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    font-family: inherit;
-    font-size: 0.95rem;
-    resize: vertical;
-}
-
-.plan-editor-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-color);
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .planning-layout {
-        grid-template-columns: 1fr;
+    /* Challenge Page Specific Styles */
+    .challenge-page {
+        max-width: 1400px;
+        margin: 0 auto;
     }
 
-    .planning-sidebar {
-        border-top: 1px solid var(--border-color);
-        max-height: 400px;
+    .challenge-header {
+        text-align: center;
+        margin-bottom: 2rem;
     }
 
-    .planning-chat-panel {
-        border-right: none;
-    }
-}
-
-@media (max-width: 768px) {
-    .challenge-tabs {
-        flex-wrap: wrap;
+    .challenge-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
     }
 
-    .tab-btn {
-        flex: 1 1 45%;
+    .challenge-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
     }
 
+    /* Workflow Progress */
     .workflow-progress {
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .workflow-connector {
-        display: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: var(--card-bg);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
     }
 
     .workflow-step {
-        flex: 1 1 45%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
     }
 
-    .planning-footer {
+    .workflow-step .step-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .workflow-step.active .step-icon,
+    .workflow-step.completed .step-icon {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .workflow-step.completed .step-icon {
+        background: var(--success-color);
+    }
+
+    .workflow-step span {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .workflow-step.active span {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .workflow-connector {
+        width: 60px;
+        height: 2px;
+        background: #e2e8f0;
+        margin: 0 0.5rem;
+    }
+
+    /* Tab Navigation */
+    .challenge-tabs {
+        display: flex;
+        gap: 0.25rem;
+        background: #f1f5f9;
+        padding: 0.25rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: transparent;
+        border: none;
+        border-radius: 0.375rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.5);
+        color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+        background: white;
+        color: var(--primary-color);
+        box-shadow: var(--shadow);
+    }
+
+    .tab-btn svg {
+        flex-shrink: 0;
+    }
+
+    /* Tab Content */
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .content-card {
+        background: var(--card-bg);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+        padding: 2rem;
+    }
+
+    .content-card h2 {
+        margin-bottom: 1.5rem;
+    }
+
+    .video-hint {
+        margin-top: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .tab-navigation-hint {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        text-align: right;
+    }
+
+    .tab-navigation-hint .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Planning Harness */
+    .planning-harness {
+        background: var(--card-bg);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .planning-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+    }
+
+    .planning-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .sensei-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .planning-header h2 {
+        margin: 0 0 0.25rem 0;
+    }
+
+    .planning-header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .planning-layout {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        min-height: 500px;
+    }
+
+    /* Chat Panel */
+    .planning-chat-panel {
+        display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        border-right: 1px solid var(--border-color);
+    }
+
+    .planning-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        background: #f8fafc;
+    }
+
+    .planning-welcome {
+        margin-bottom: 1rem;
+    }
+
+    .sensei-message {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        border-top-left-radius: 0.25rem;
+        padding: 1rem 1.25rem;
+        max-width: 85%;
+    }
+
+    .sensei-message p {
+        margin: 0 0 0.75rem 0;
+    }
+
+    .sensei-message p:last-child {
+        margin-bottom: 0;
+    }
+
+    .user-message {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 1rem;
+        border-top-right-radius: 0.25rem;
+        padding: 1rem 1.25rem;
+        max-width: 85%;
+        margin-left: auto;
+        margin-top: 1rem;
+    }
+
+    .planning-input-area {
+        padding: 1rem 1.5rem;
+        background: white;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .planning-input-form textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        font-family: inherit;
+        font-size: 0.95rem;
+        resize: none;
+        margin-bottom: 0.75rem;
+    }
+
+    .planning-input-form textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .planning-input-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .planning-input-actions .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Sidebar */
+    .planning-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: #f8fafc;
+        overflow-y: auto;
+    }
+
+    .coverage-card,
+    .plan-preview-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .coverage-card h3,
+    .plan-preview-header h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        margin: 0;
+        padding: 0.75rem 1rem;
+        background: #f1f5f9;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .coverage-count {
+        margin-left: auto;
+        background: var(--primary-color);
+        color: white;
+        padding: 0.125rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+    }
+
+    .coverage-list {
+        padding: 0.75rem;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+
+    .coverage-loading {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .coverage-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .coverage-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .coverage-item.covered {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .coverage-item .check-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .coverage-item:not(.covered) .check-icon {
+        border: 2px solid #d1d5db;
+    }
+
+    .coverage-item.covered .check-icon {
+        background: var(--success-color);
+        color: white;
+    }
+
+    /* Plan Preview */
+    .plan-preview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-right: 0.5rem;
+    }
+
+    .plan-preview-actions {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .plan-preview-actions .btn {
+        padding: 0.25rem 0.5rem;
+        background: transparent;
+        border: 1px solid transparent;
+    }
+
+    .plan-preview-actions .btn:hover {
+        background: #e2e8f0;
+        border-color: var(--border-color);
+    }
+
+    .plan-preview-content {
+        padding: 1rem;
+        min-height: 150px;
+        max-height: 300px;
+        overflow-y: auto;
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .empty-plan {
+        color: var(--text-secondary);
+        font-style: italic;
+    }
+
+    /* Export Actions */
+    .plan-export-actions {
+        margin-top: auto;
+    }
+
+    .plan-export-actions .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .export-hint {
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-align: center;
+    }
+
+    /* Planning Footer */
+    .planning-footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        background: white;
+        border-top: 1px solid var(--border-color);
     }
 
     .planning-footer .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Submit Tab */
+    .submit-intro {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+
+    .submission-form .btn-lg {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    /* Starter Repo */
+    .starter-repo {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .repo-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f1f5f9;
+        padding: 0.75rem 1rem;
+        border-radius: 0.375rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-family: monospace;
+        margin-top: 0.5rem;
+    }
+
+    .repo-link:hover {
+        background: #e2e8f0;
+    }
+
+    /* Plan Editor Modal */
+    .plan-editor-modal {
+        background: white;
+        border-radius: 0.75rem;
+        width: 90%;
+        max-width: 700px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(20px);
+        transition: transform 0.3s;
+    }
+
+    .modal-overlay.active .plan-editor-modal {
+        transform: translateY(0);
+    }
+
+    .plan-editor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .plan-editor-header h3 {
+        margin: 0;
+    }
+
+    .modal-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+        line-height: 1;
+    }
+
+    .plan-editor-content {
+        padding: 1.5rem;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    #plan-editor-textarea {
         width: 100%;
+        height: 300px;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        font-family: inherit;
+        font-size: 0.95rem;
+        resize: vertical;
+    }
+
+    .plan-editor-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .planning-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .planning-sidebar {
+            border-top: 1px solid var(--border-color);
+            max-height: 400px;
+        }
+
+        .planning-chat-panel {
+            border-right: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .challenge-tabs {
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1 1 45%;
+        }
+
+        .workflow-progress {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .workflow-connector {
+            display: none;
+        }
+
+        .workflow-step {
+            flex: 1 1 45%;
+        }
+
+        .planning-footer {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .planning-footer .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Review Tab Styles (Section 5) */
+    .review-harness {
+        background: var(--card-bg);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .review-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+    }
+
+    .review-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .review-header-content svg {
+        flex-shrink: 0;
+    }
+
+    .review-header h2 {
+        margin: 0 0 0.25rem 0;
+    }
+
+    .review-header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .review-content {
+        padding: 1.5rem 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .review-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .review-card h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Collapsible Card Styles */
+    .collapsible-card .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+        border-bottom: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .collapsible-card .card-header:hover {
+        background: #f1f5f9;
+    }
+
+    .collapsible-card.collapsed .card-header {
+        border-bottom: none;
+    }
+
+    .collapsible-card .card-content {
+        padding: 1.5rem;
+        max-height: 2000px;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    }
+
+    .collapsible-card.collapsed .card-content {
+        max-height: 0;
+        padding: 0 1.5rem;
+    }
+
+    .collapse-icon {
+        transition: transform 0.3s;
+        flex-shrink: 0;
+    }
+
+    .collapsible-card.collapsed .collapse-icon {
+        transform: rotate(-90deg);
+    }
+
+    .review-card h4 {
+        margin: 0 0 0.75rem 0;
+        font-size: 1rem;
+    }
+
+    .review-card.no-submission-card {
+        background: #f8fafc;
+    }
+
+    .review-footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        background: white;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .review-footer .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .review-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .submission-status-display {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .status-badge {
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-ai_complete {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-feedback_requested {
+        background: #fce7f3;
+        color: #9d174d;
+    }
+
+    .status-reviewed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .submission-details {
+        flex: 1;
+    }
+
+    .submission-details p {
+        margin: 0.5rem 0;
+    }
+
+    .detected-approach-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .badge-label {
+        opacity: 0.9;
+    }
+
+    .badge-value {
+        font-weight: 600;
+    }
+
+    .ai-feedback-content {
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        background: #f8fafc;
+    }
+
+    .ai-feedback-pending {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 2rem;
+        background: #f8fafc;
+        border-radius: 0.5rem;
+        text-align: center;
         justify-content: center;
     }
-}
 
-/* Review Tab Styles (Section 5) */
-.review-harness {
-    background: var(--card-bg);
-    border-radius: 0.5rem;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-}
-
-.review-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 1.5rem 2rem;
-}
-
-.review-header-content {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.review-header-content svg {
-    flex-shrink: 0;
-}
-
-.review-header h2 {
-    margin: 0 0 0.25rem 0;
-}
-
-.review-header p {
-    margin: 0;
-    opacity: 0.9;
-    font-size: 0.95rem;
-}
-
-.review-content {
-    padding: 1.5rem 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.review-card {
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    overflow: hidden;
-}
-
-.review-card h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* Collapsible Card Styles */
-.collapsible-card .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-    background: #f8fafc;
-    border-bottom: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.collapsible-card .card-header:hover {
-    background: #f1f5f9;
-}
-
-.collapsible-card.collapsed .card-header {
-    border-bottom: none;
-}
-
-.collapsible-card .card-content {
-    padding: 1.5rem;
-    max-height: 2000px;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-}
-
-.collapsible-card.collapsed .card-content {
-    max-height: 0;
-    padding: 0 1.5rem;
-}
-
-.collapse-icon {
-    transition: transform 0.3s;
-    flex-shrink: 0;
-}
-
-.collapsible-card.collapsed .collapse-icon {
-    transform: rotate(-90deg);
-}
-
-.review-card h4 {
-    margin: 0 0 0.75rem 0;
-    font-size: 1rem;
-}
-
-.review-card.no-submission-card {
-    background: #f8fafc;
-}
-
-.review-footer {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-    background: white;
-    border-top: 1px solid var(--border-color);
-}
-
-.review-footer .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.review-section {
-    margin-bottom: 1.5rem;
-}
-
-.submission-status-display {
-    display: flex;
-    align-items: flex-start;
-    gap: 1.5rem;
-}
-
-.status-badge {
-    padding: 0.375rem 0.75rem;
-    border-radius: 0.375rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-ai_complete {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.status-feedback_requested {
-    background: #fce7f3;
-    color: #9d174d;
-}
-
-.status-reviewed {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.submission-details {
-    flex: 1;
-}
-
-.submission-details p {
-    margin: 0.5rem 0;
-}
-
-.detected-approach-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-.badge-label {
-    opacity: 0.9;
-}
-
-.badge-value {
-    font-weight: 600;
-}
-
-.ai-feedback-content {
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    background: #f8fafc;
-}
-
-.ai-feedback-pending {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 2rem;
-    background: #f8fafc;
-    border-radius: 0.5rem;
-    text-align: center;
-    justify-content: center;
-}
-
-.ai-feedback-pending svg {
-    color: var(--primary-color);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.alternatives-section {
-    margin-top: 1.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-}
-
-.alternatives-section summary {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    cursor: pointer;
-    background: #f8fafc;
-    font-weight: 600;
-}
-
-.alternatives-section[open] summary svg {
-    transform: rotate(180deg);
-}
-
-.alternatives-content {
-    padding: 1rem;
-}
-
-/* Digi-Trainer Section */
-.digi-trainer-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.digi-trainer-avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    border: 3px solid var(--primary-color);
-}
-
-.digi-trainer-intro {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    margin: 0;
-}
-
-/* Gems Progress */
-.gems-progress-container {
-    margin-bottom: 1.5rem;
-}
-
-.gems-progress-container h3 {
-    margin-bottom: 1rem;
-    font-size: 1rem;
-}
-
-.gems-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-}
-
-.gem-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: #f8fafc;
-    border: 2px solid #e2e8f0;
-    border-radius: 2rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.gem-item:hover {
-    background: #e2e8f0;
-    transform: translateY(-2px);
-}
-
-.gem-item.locked {
-    opacity: 0.6;
-}
-
-.gem-item.engaged {
-    background: #dbeafe;
-    border-color: #3b82f6;
-}
-
-.gem-item.passed {
-    background: #dcfce7;
-    border-color: #22c55e;
-}
-
-.gem-icon {
-    font-size: 1.25rem;
-}
-
-.gem-title {
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.gems-hint {
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-}
-
-/* Digi-Trainer Chat */
-.digi-trainer-chat {
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    overflow: hidden;
-    margin-top: 1.5rem;
-}
-
-.digi-trainer-chat .chat-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.digi-trainer-chat .chat-header h4 {
-    margin: 0;
-}
-
-.chat-messages {
-    height: 300px;
-    overflow-y: auto;
-    padding: 1rem;
-    background: #f8fafc;
-}
-
-.chat-input-area {
-    padding: 1rem;
-    background: white;
-    border-top: 1px solid var(--border-color);
-}
-
-.chat-input-area textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    font-family: inherit;
-    resize: none;
-    margin-bottom: 0.75rem;
-}
-
-.chat-input-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-}
-
-.chat-footer {
-    padding: 0.75rem 1rem;
-    background: #f8fafc;
-    border-top: 1px solid var(--border-color);
-    text-align: center;
-}
-
-/* Sensei Session Section */
-.sensei-session-section {
-    margin-top: 1rem;
-}
-
-.sensei-locked,
-.sensei-unlocked {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-}
-
-.sensei-locked {
-    background: #f8fafc;
-    border: 2px dashed #e2e8f0;
-}
-
-.sensei-locked svg {
-    color: var(--text-secondary);
-    flex-shrink: 0;
-}
-
-.sensei-unlocked {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-    border: 2px solid var(--primary-color);
-}
-
-.sensei-unlocked svg {
-    color: var(--primary-color);
-    flex-shrink: 0;
-}
-
-/* Sensei Feedback */
-.sensei-feedback {
-    padding: 1rem;
-}
-
-.journey-stage {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.75rem;
-    background: #f8fafc;
-    border-radius: 0.375rem;
-}
-
-.stage-label {
-    color: var(--text-secondary);
-}
-
-.stage-value {
-    font-weight: 600;
-    color: var(--primary-color);
-}
-
-.certification-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    color: white;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    margin-top: 1rem;
-}
-
-.next-challenges {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-}
-
-/* No Submission State */
-.no-submission-message {
-    text-align: center;
-    padding: 3rem 2rem;
-}
-
-.no-submission-message svg {
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-}
-
-.no-submission-message h2 {
-    margin-bottom: 0.5rem;
-}
-
-.no-submission-message p {
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-}
-
-/* Diff Viewer Styles */
-.diff-viewer {
-    max-height: 500px;
-    overflow-y: auto;
-}
-
-.diff-content {
-    background: #f8fafc;
-    border: 1px solid var(--border-color);
-    border-radius: 0.375rem;
-    padding: 1rem;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-bottom: 1rem;
-}
-
-.diff-content:empty {
-    display: none;
-}
-
-.diff-hint {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-}
-
-.diff-loading {
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-secondary);
-}
-
-/* Responsive Review Tab */
-@media (max-width: 768px) {
-    .submission-status-display {
-        flex-direction: column;
+    .ai-feedback-pending svg {
+        color: var(--primary-color);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    .alternatives-section {
+        margin-top: 1.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+    }
+
+    .alternatives-section summary {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        cursor: pointer;
+        background: #f8fafc;
+        font-weight: 600;
+    }
+
+    .alternatives-section[open] summary svg {
+        transform: rotate(180deg);
+    }
+
+    .alternatives-content {
+        padding: 1rem;
+    }
+
+    /* Digi-Trainer Section */
+    .digi-trainer-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .digi-trainer-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 3px solid var(--primary-color);
+    }
+
+    .digi-trainer-intro {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    /* Gems Progress */
+    .gems-progress-container {
+        margin-bottom: 1.5rem;
+    }
+
+    .gems-progress-container h3 {
+        margin-bottom: 1rem;
+        font-size: 1rem;
     }
 
     .gems-row {
-        flex-direction: column;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
     }
 
     .gem-item {
-        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 2rem;
+        cursor: pointer;
+        transition: all 0.2s;
     }
 
-    .collapsible-card .card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
+    .gem-item:hover {
+        background: #e2e8f0;
+        transform: translateY(-2px);
     }
-}
+
+    .gem-item.locked {
+        opacity: 0.6;
+    }
+
+    .gem-item.engaged {
+        background: #dbeafe;
+        border-color: #3b82f6;
+    }
+
+    .gem-item.passed {
+        background: #dcfce7;
+        border-color: #22c55e;
+    }
+
+    .gem-icon {
+        font-size: 1.25rem;
+    }
+
+    .gem-title {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .gems-hint {
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    /* Digi-Trainer Chat */
+    .digi-trainer-chat {
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        margin-top: 1.5rem;
+    }
+
+    .digi-trainer-chat .chat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .digi-trainer-chat .chat-header h4 {
+        margin: 0;
+    }
+
+    .chat-messages {
+        height: 300px;
+        overflow-y: auto;
+        padding: 1rem;
+        background: #f8fafc;
+    }
+
+    .chat-input-area {
+        padding: 1rem;
+        background: white;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .chat-input-area textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        font-family: inherit;
+        resize: none;
+        margin-bottom: 0.75rem;
+    }
+
+    .chat-input-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .chat-footer {
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        border-top: 1px solid var(--border-color);
+        text-align: center;
+    }
+
+    /* Sensei Session Section */
+    .sensei-session-section {
+        margin-top: 1rem;
+    }
+
+    .sensei-locked,
+    .sensei-unlocked {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+    }
+
+    .sensei-locked {
+        background: #f8fafc;
+        border: 2px dashed #e2e8f0;
+    }
+
+    .sensei-locked svg {
+        color: var(--text-secondary);
+        flex-shrink: 0;
+    }
+
+    .sensei-unlocked {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border: 2px solid var(--primary-color);
+    }
+
+    .sensei-unlocked svg {
+        color: var(--primary-color);
+        flex-shrink: 0;
+    }
+
+    /* Sensei Feedback */
+    .sensei-feedback {
+        padding: 1rem;
+    }
+
+    .journey-stage {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 0.375rem;
+    }
+
+    .stage-label {
+        color: var(--text-secondary);
+    }
+
+    .stage-value {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .certification-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: white;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+
+    .next-challenges {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* No Submission State */
+    .no-submission-message {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+
+    .no-submission-message svg {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .no-submission-message h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .no-submission-message p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Diff Viewer Styles */
+    .diff-viewer {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .diff-content {
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        border-radius: 0.375rem;
+        padding: 1rem;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        margin-bottom: 1rem;
+    }
+
+    .diff-content:empty {
+        display: none;
+    }
+
+    .diff-hint {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .diff-loading {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+    }
+
+    /* Responsive Review Tab */
+    @media (max-width: 768px) {
+        .submission-status-display {
+            flex-direction: column;
+        }
+
+        .gems-row {
+            flex-direction: column;
+        }
+
+        .gem-item {
+            width: 100%;
+        }
+
+        .collapsible-card .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+    }
 </style>
 
 <script>
-// Tab switching
-function switchTab(tabName) {
-    // Update tab buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tabName);
-    });
-
-    // Update tab content
-    document.querySelectorAll('.tab-pane').forEach(pane => {
-        pane.classList.toggle('active', pane.id === 'tab-' + tabName);
-    });
-
-    // Update workflow progress
-    const steps = ['learn', 'challenge', 'plan', 'submit', 'review'];
-    const currentIndex = steps.indexOf(tabName);
-    document.querySelectorAll('.workflow-step').forEach((step, index) => {
-        step.classList.toggle('active', step.dataset.step === tabName);
-        step.classList.toggle('completed', index < currentIndex);
-    });
-}
-
-// Initialize tab clicks
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-});
-
-document.querySelectorAll('.workflow-step').forEach(step => {
-    step.addEventListener('click', () => switchTab(step.dataset.step));
-});
-
-// Planning Harness Functionality
-let planningSessionId = null;
-const goalId = document.getElementById('planning-harness')?.dataset.goalId;
-
-async function initPlanningHarness() {
-    if (!goalId) return;
-
-    try {
-        // Start planning session
-        const response = await fetch(`/api/agent/goals/${goalId}/plan/start`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+    // Tab switching
+    function switchTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabName);
         });
 
-        const data = await response.json();
-        if (data.error) {
-            console.error('Error starting planning session:', data.error);
-            return;
-        }
+        // Update tab content
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.toggle('active', pane.id === 'tab-' + tabName);
+        });
 
-        planningSessionId = data.session_id;
+        // Update workflow progress
+        const steps = ['learn', 'challenge', 'plan', 'submit', 'review'];
+        const currentIndex = steps.indexOf(tabName);
+        document.querySelectorAll('.workflow-step').forEach((step, index) => {
+            step.classList.toggle('active', step.dataset.step === tabName);
+            step.classList.toggle('completed', index < currentIndex);
+        });
+    }
 
-        // Update coverage list
-        if (data.goals) {
-            updateCoverageList(data.goals, {});
-        }
+    // Initialize tab clicks
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
 
-        // Show opening message
-        if (data.opening_message) {
-            const messagesDiv = document.getElementById('planning-messages');
-            messagesDiv.innerHTML = `
+    document.querySelectorAll('.workflow-step').forEach(step => {
+        step.addEventListener('click', () => switchTab(step.dataset.step));
+    });
+
+    // Planning Harness Functionality
+    let planningSessionId = null;
+    const goalId = document.getElementById('planning-harness')?.dataset.goalId;
+
+    async function initPlanningHarness() {
+        if (!goalId) return;
+
+        try {
+            // Start planning session
+            const response = await fetch(`/api/agent/goals/${goalId}/plan/start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                console.error('Error starting planning session:', data.error);
+                return;
+            }
+
+            planningSessionId = data.session_id;
+
+            // Update coverage list
+            if (data.goals) {
+                updateCoverageList(data.goals, {});
+            }
+
+            // Show opening message
+            if (data.opening_message) {
+                const messagesDiv = document.getElementById('planning-messages');
+                messagesDiv.innerHTML = `
                 <div class="sensei-message">
                     ${data.opening_message.split('\n').map(line => `<p>${line}</p>`).join('')}
                 </div>
             `;
+            }
+
+        } catch (error) {
+            console.error('Failed to initialize planning harness:', error);
         }
-
-    } catch (error) {
-        console.error('Failed to initialize planning harness:', error);
     }
-}
 
-function updateCoverageList(goals, coverage) {
-    const coverageList = document.getElementById('coverage-list');
-    const coverageCount = document.getElementById('coverage-count');
+    function updateCoverageList(goals, coverage) {
+        const coverageList = document.getElementById('coverage-list');
+        const coverageCount = document.getElementById('coverage-count');
 
-    let coveredCount = 0;
-    let html = '';
+        let coveredCount = 0;
+        let html = '';
 
-    goals.forEach(goal => {
-        const isCovered = coverage[goal.id] || false;
-        if (isCovered) coveredCount++;
+        goals.forEach(goal => {
+            const isCovered = coverage[goal.id] || false;
+            if (isCovered) coveredCount++;
 
-        html += `
+            html += `
             <div class="coverage-item ${isCovered ? 'covered' : ''}">
                 <span class="check-icon">
                     ${isCovered ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
@@ -1851,248 +1998,262 @@ function updateCoverageList(goals, coverage) {
                 <span>${goal.title}</span>
             </div>
         `;
-    });
-
-    coverageList.innerHTML = html;
-    coverageCount.textContent = `${coveredCount}/${goals.length}`;
-}
-
-// Handle message sending
-document.getElementById('planning-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const input = document.getElementById('planning-input');
-    const sendBtn = document.getElementById('send-planning-btn');
-    const message = input.value.trim();
-
-    if (!message || !planningSessionId) return;
-
-    // Disable button and show processing state
-    sendBtn.disabled = true;
-    sendBtn.innerHTML = 'Processing...';
-
-    // Add user message to chat
-    const messagesDiv = document.getElementById('planning-messages');
-    messagesDiv.innerHTML += `<div class="user-message">${escapeHtml(message)}</div>`;
-
-    // Clear input
-    input.value = '';
-
-    // Send to API
-    try {
-        const response = await fetch(`/api/agent/goals/${goalId}/plan/message`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                session_id: planningSessionId,
-                message: message
-            })
         });
 
-        const data = await response.json();
+        coverageList.innerHTML = html;
+        coverageCount.textContent = `${coveredCount}/${goals.length}`;
+    }
 
-        if (data.response) {
-            messagesDiv.innerHTML += `
+    // Handle message sending
+    document.getElementById('planning-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const input = document.getElementById('planning-input');
+        const sendBtn = document.getElementById('send-planning-btn');
+        const message = input.value.trim();
+
+        if (!message || !planningSessionId) return;
+
+        // Disable button and show processing state
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = 'Processing...';
+
+        // Add user message to chat
+        const messagesDiv = document.getElementById('planning-messages');
+        messagesDiv.innerHTML += `<div class="user-message">${escapeHtml(message)}</div>`;
+
+        // Clear input
+        input.value = '';
+
+        // Send to API
+        try {
+            const response = await fetch(`/api/agent/goals/${goalId}/plan/message`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: planningSessionId,
+                    message: message
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.response) {
+                messagesDiv.innerHTML += `
                 <div class="sensei-message">
                     <p>${data.response}</p>
                 </div>
             `;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
 
-        if (data.coverage) {
-            // Re-fetch goals to update coverage display
-            const progressResp = await fetch(`/api/agent/goals/${goalId}/progress`);
-            const progressData = await progressResp.json();
-            if (progressData.progress) {
-                const goals = progressData.progress.map(p => p.core_goal);
-                updateCoverageList(goals, data.coverage.goals || {});
+            if (data.coverage) {
+                // Re-fetch goals to update coverage display
+                const progressResp = await fetch(`/api/agent/goals/${goalId}/progress`);
+                const progressData = await progressResp.json();
+                if (progressData.progress) {
+                    const goals = progressData.progress.map(p => p.core_goal);
+                    updateCoverageList(goals, data.coverage.goals || {});
+                }
+            }
+
+            if (data.plan?.plan_content) {
+                document.getElementById('plan-preview-content').innerHTML =
+                    `<div class="plan-text">${escapeHtml(data.plan.plan_content).replace(/\n/g, '<br>')}</div>`;
+            }
+
+        } catch (error) {
+            console.error('Error sending message:', error);
+        } finally {
+            // Re-enable button
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Send';
+        }
+    });
+
+    // Export plan
+    document.getElementById('export-plan-btn')?.addEventListener('click', async () => {
+        if (!planningSessionId) return;
+
+        try {
+            const response = await fetch(`/api/agent/goals/${goalId}/plan/export?session_id=${planningSessionId}`);
+            const data = await response.json();
+
+            if (data.markdown) {
+                // Copy to clipboard
+                navigator.clipboard.writeText(data.markdown).then(() => {
+                    alert('Plan copied to clipboard!');
+                }).catch(() => {
+                    // Fallback: show in modal
+                    document.getElementById('plan-editor-textarea').value = data.markdown;
+                    document.getElementById('plan-editor-modal').classList.add('active');
+                });
+            }
+        } catch (error) {
+            console.error('Error exporting plan:', error);
+        }
+    });
+
+    // Generate plan from conversation
+    document.getElementById('generate-plan-btn')?.addEventListener('click', async () => {
+        if (!planningSessionId) return;
+
+        try {
+            const btn = document.getElementById('generate-plan-btn');
+            btn.disabled = true;
+
+            const response = await fetch(`/api/agent/goals/${goalId}/plan/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: planningSessionId })
+            });
+
+            const data = await response.json();
+
+            if (data.plan_content) {
+                document.getElementById('plan-preview-content').innerHTML =
+                    `<div class="plan-text markdown-content">${data.plan_content.replace(/\n/g, '<br>')}</div>`;
+            }
+
+            btn.disabled = false;
+        } catch (error) {
+            console.error('Error generating plan:', error);
+            document.getElementById('generate-plan-btn').disabled = false;
+        }
+    });
+
+    // Edit plan modal
+    document.getElementById('edit-plan-btn')?.addEventListener('click', () => {
+        const content = document.getElementById('plan-preview-content').innerText;
+        document.getElementById('plan-editor-textarea').value = content;
+        document.getElementById('plan-editor-modal').classList.add('active');
+    });
+
+    function closePlanEditor() {
+        document.getElementById('plan-editor-modal').classList.remove('active');
+    }
+
+    async function savePlanEdit() {
+        if (!planningSessionId) return;
+
+        const content = document.getElementById('plan-editor-textarea').value;
+
+        try {
+            const response = await fetch(`/api/agent/goals/${goalId}/plan/update`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: planningSessionId,
+                    content: content
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('plan-preview-content').innerHTML =
+                    `<div class="plan-text">${escapeHtml(content).replace(/\n/g, '<br>')}</div>`;
+            }
+
+            closePlanEditor();
+        } catch (error) {
+            console.error('Error saving plan:', error);
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Close modal on overlay click
+    document.getElementById('plan-editor-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'plan-editor-modal') {
+            closePlanEditor();
+        }
+    });
+
+    // Initialize on page load
+    if (document.getElementById('planning-harness')) {
+        initPlanningHarness();
+    }
+
+    // Check URL hash on page load and switch to appropriate tab
+    window.addEventListener('DOMContentLoaded', () => {
+        const hash = window.location.hash;
+        if (hash) {
+            // Hash format: #tab-review or #review
+            let tabName = hash.substring(1); // Remove leading #
+            if (tabName.startsWith('tab-')) {
+                tabName = tabName.substring(4); // Remove 'tab-' prefix
+            }
+            if (tabName) {
+                switchTab(tabName);
             }
         }
+    });
 
-        if (data.plan?.plan_content) {
-            document.getElementById('plan-preview-content').innerHTML =
-                `<div class="plan-text">${escapeHtml(data.plan.plan_content).replace(/\n/g, '<br>')}</div>`;
-        }
-
-    } catch (error) {
-        console.error('Error sending message:', error);
-    } finally {
-        // Re-enable button
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Send';
-    }
-});
-
-// Export plan
-document.getElementById('export-plan-btn')?.addEventListener('click', async () => {
-    if (!planningSessionId) return;
-
-    try {
-        const response = await fetch(`/api/agent/goals/${goalId}/plan/export?session_id=${planningSessionId}`);
-        const data = await response.json();
-
-        if (data.markdown) {
-            // Copy to clipboard
-            navigator.clipboard.writeText(data.markdown).then(() => {
-                alert('Plan copied to clipboard!');
-            }).catch(() => {
-                // Fallback: show in modal
-                document.getElementById('plan-editor-textarea').value = data.markdown;
-                document.getElementById('plan-editor-modal').classList.add('active');
-            });
-        }
-    } catch (error) {
-        console.error('Error exporting plan:', error);
-    }
-});
-
-// Generate plan from conversation
-document.getElementById('generate-plan-btn')?.addEventListener('click', async () => {
-    if (!planningSessionId) return;
-
-    try {
-        const btn = document.getElementById('generate-plan-btn');
-        btn.disabled = true;
-
-        const response = await fetch(`/api/agent/goals/${goalId}/plan/generate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session_id: planningSessionId })
-        });
-
-        const data = await response.json();
-
-        if (data.plan_content) {
-            document.getElementById('plan-preview-content').innerHTML =
-                `<div class="plan-text markdown-content">${data.plan_content.replace(/\n/g, '<br>')}</div>`;
-        }
-
-        btn.disabled = false;
-    } catch (error) {
-        console.error('Error generating plan:', error);
-        document.getElementById('generate-plan-btn').disabled = false;
-    }
-});
-
-// Edit plan modal
-document.getElementById('edit-plan-btn')?.addEventListener('click', () => {
-    const content = document.getElementById('plan-preview-content').innerText;
-    document.getElementById('plan-editor-textarea').value = content;
-    document.getElementById('plan-editor-modal').classList.add('active');
-});
-
-function closePlanEditor() {
-    document.getElementById('plan-editor-modal').classList.remove('active');
-}
-
-async function savePlanEdit() {
-    if (!planningSessionId) return;
-
-    const content = document.getElementById('plan-editor-textarea').value;
-
-    try {
-        const response = await fetch(`/api/agent/goals/${goalId}/plan/update`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                session_id: planningSessionId,
-                content: content
-            })
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            document.getElementById('plan-preview-content').innerHTML =
-                `<div class="plan-text">${escapeHtml(content).replace(/\n/g, '<br>')}</div>`;
-        }
-
-        closePlanEditor();
-    } catch (error) {
-        console.error('Error saving plan:', error);
-    }
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Close modal on overlay click
-document.getElementById('plan-editor-modal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'plan-editor-modal') {
-        closePlanEditor();
-    }
-});
-
-// Initialize on page load
-if (document.getElementById('planning-harness')) {
-    initPlanningHarness();
-}
-
-// Check URL hash on page load and switch to appropriate tab
-window.addEventListener('DOMContentLoaded', () => {
-    const hash = window.location.hash;
-    if (hash) {
-        // Remove the '#tab-' prefix to get the tab name
-        const tabName = hash.replace('#tab-', '').replace('#', '');
-        if (tabName) {
-            switchTab(tabName);
+    // Collapsible card functionality
+    function toggleCollapse(headerElement) {
+        const card = headerElement.closest('.collapsible-card');
+        if (card) {
+            card.classList.toggle('collapsed');
         }
     }
-});
 
-// Collapsible card functionality
-function toggleCollapse(headerElement) {
-    const card = headerElement.closest('.collapsible-card');
-    if (card) {
-        card.classList.toggle('collapsed');
-    }
-}
+    // Load diff content
+    let diffLoaded = false;
+    async function loadDiffContent(submissionId) {
+        if (diffLoaded) return;
 
-// Load diff content
-let diffLoaded = false;
-async function loadDiffContent(submissionId) {
-    if (diffLoaded) return;
+        const diffContent = document.getElementById('diff-content');
+        const diffHint = document.querySelector('.diff-hint');
+        const loadBtn = event.target;
 
-    const diffContent = document.getElementById('diff-content');
-    const diffHint = document.querySelector('.diff-hint');
-    const loadBtn = event.target;
+        if (!diffContent) return;
 
-    if (!diffContent) return;
+        // Show loading state
+        loadBtn.disabled = true;
+        loadBtn.textContent = 'Loading...';
+        diffHint.textContent = 'Fetching diff from GitHub...';
 
-    // Show loading state
-    loadBtn.disabled = true;
-    loadBtn.textContent = 'Loading...';
-    diffHint.textContent = 'Fetching diff from GitHub...';
+        try {
+            const response = await fetch(`/submissions/${submissionId}/diff`);
+            const data = await response.json();
 
-    try {
-        const response = await fetch(`/submissions/${submissionId}/diff`);
-        const data = await response.json();
-
-        if (data.diff) {
-            diffContent.textContent = data.diff;
-            diffContent.style.display = 'block';
-            diffHint.style.display = 'none';
-            loadBtn.style.display = 'none';
-            diffLoaded = true;
-        } else if (data.error) {
-            diffHint.textContent = `Error: ${data.error}`;
+            if (data.formatted_html || data.diff) {
+                // Use formatted HTML if available, otherwise fall back to raw diff
+                if (data.formatted_html) {
+                    diffContent.innerHTML = data.formatted_html;
+                } else {
+                    diffContent.textContent = data.diff;
+                }
+                diffContent.style.display = 'block';
+                diffHint.style.display = 'none';
+                loadBtn.style.display = 'none';
+                diffLoaded = true;
+            } else if (data.error) {
+                diffHint.textContent = `Error: ${data.error}`;
+                diffHint.style.color = 'var(--danger-color)';
+                loadBtn.disabled = false;
+                loadBtn.textContent = 'Retry';
+            }
+        } catch (error) {
+            console.error('Error loading diff:', error);
+            diffHint.textContent = 'Failed to load diff. Please try again.';
             diffHint.style.color = 'var(--danger-color)';
             loadBtn.disabled = false;
             loadBtn.textContent = 'Retry';
         }
-    } catch (error) {
-        console.error('Error loading diff:', error);
-        diffHint.textContent = 'Failed to load diff. Please try again.';
-        diffHint.style.color = 'var(--danger-color)';
-        loadBtn.disabled = false;
-        loadBtn.textContent = 'Retry';
     }
-}
 </script>
+
+<!-- PR Preview JavaScript -->
+<script src="{{ url_for('static', filename='js/pr-preview.js') }}"></script>
 
 <!-- Review Tab JavaScript -->
 <script src="{{ url_for('static', filename='js/review-tab.js') }}"></script>
+
+<!-- Voice Input JavaScript -->
+<script src="{{ url_for('static', filename='js/voice-input.js') }}"></script>
 {% endblock %}

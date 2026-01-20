@@ -140,7 +140,15 @@ Build a `/api/ask` endpoint that:
 
 # Multi-approach rubric for Claude API challenge (Section 14)
 CLAUDE_API_RUBRIC = {
-    "version": "1.0",
+    "version": "1.1",
+    "approach_type": "implementation_strategy",
+    "approach_type_label": "LLM integration approach",
+    "domain_context": "Claude API integration patterns",
+    "learning_points": [
+        "Different client libraries offer varying levels of abstraction",
+        "Error handling is critical when working with external APIs",
+        "Environment configuration keeps sensitive credentials secure"
+    ],
     "valid_approaches": [
         {
             "id": "anthropic_sdk",
@@ -896,7 +904,15 @@ def seed_challenge_rubric():
 
         # Multi-approach rubric JSON (Section 2.2)
         rubric_data = {
-            "version": "1.0",
+            "version": "1.1",
+            "approach_type": "authentication",
+            "approach_type_label": "authentication approach",
+            "domain_context": "API security and access control",
+            "learning_points": [
+                "Authentication protects sensitive endpoints while keeping read operations accessible",
+                "The decorator pattern provides clean, reusable authentication logic",
+                "Different auth approaches have different tradeoffs - choose based on your use case"
+            ],
             "valid_approaches": [
                 {
                     "id": "api_key",
@@ -998,20 +1014,101 @@ def seed_challenge_rubric():
     print(f"Created {created_count} challenge rubric(s) successfully!")
 
 
+def check_database_health():
+    """
+    Check if database needs seeding.
+
+    Returns dict with status:
+    - db_exists: bool
+    - needs_full_seed: bool (no users/modules)
+    - needs_rubrics: bool (CoreLearningGoals missing)
+    - is_healthy: bool
+    """
+    import os
+
+    db_path = 'instance/code_dojo.db'
+    db_exists = os.path.exists(db_path)
+
+    health = {
+        'db_exists': db_exists,
+        'needs_full_seed': False,
+        'needs_rubrics': False,
+        'is_healthy': False
+    }
+
+    if not db_exists:
+        health['needs_full_seed'] = True
+        return health
+
+    user_count = User.query.count()
+    module_count = LearningModule.query.count()
+    core_goal_count = CoreLearningGoal.query.count()
+
+    if user_count == 0 or module_count == 0:
+        health['needs_full_seed'] = True
+    elif core_goal_count == 0:
+        health['needs_rubrics'] = True
+    else:
+        health['is_healthy'] = True
+
+    return health
+
+
+def print_database_status():
+    """Print current database status for debugging."""
+    print("\n" + "=" * 60)
+    print("DATABASE STATUS")
+    print("=" * 60)
+
+    print(f"Users:             {User.query.count():3d}")
+    print(f"Learning Modules:  {LearningModule.query.count():3d}")
+    print(f"Learning Goals:    {LearningGoal.query.count():3d}")
+    print(f"Core Goals (Gems): {CoreLearningGoal.query.count():3d}")
+    print(f"Challenge Rubrics: {ChallengeRubric.query.count():3d}")
+    print(f"Anatomy Topics:    {AnatomyTopic.query.count():3d}")
+
+    print("=" * 60 + "\n")
+
+
+def smart_seed():
+    """Intelligently seed only missing data."""
+    health = check_database_health()
+
+    if health['needs_full_seed']:
+        print("Database missing core data. Running full seed...")
+        seed_database()
+        seed_core_learning_goals()
+        seed_challenge_rubric()
+    elif health['needs_rubrics']:
+        print("CoreLearningGoals missing. Seeding rubrics...")
+        seed_core_learning_goals()
+        seed_challenge_rubric()
+    else:
+        print("Database is healthy - no seeding needed.")
+
+
 if __name__ == '__main__':
     with app.app_context():
-        if len(sys.argv) > 1 and sys.argv[1] == '--reset':
-            reset_database()
-        elif len(sys.argv) > 1 and sys.argv[1] == '--anatomy':
-            seed_anatomy_topics()
-        elif len(sys.argv) > 1 and sys.argv[1] == '--rubrics':
-            seed_core_learning_goals()
-        elif len(sys.argv) > 1 and sys.argv[1] == '--challenge-rubric':
-            seed_challenge_rubric()
-        elif len(sys.argv) > 1 and sys.argv[1] == '--all':
-            # Seed all data including rubrics
-            seed_database()
-            seed_core_learning_goals()
-            seed_challenge_rubric()
+        if len(sys.argv) > 1:
+            arg = sys.argv[1]
+
+            if arg == '--reset':
+                reset_database()
+            elif arg == '--anatomy':
+                seed_anatomy_topics()
+            elif arg == '--rubrics':
+                seed_core_learning_goals()
+            elif arg == '--challenge-rubric':
+                seed_challenge_rubric()
+            elif arg == '--all':
+                seed_database()
+                seed_core_learning_goals()
+                seed_challenge_rubric()
+            elif arg == '--check':
+                print_database_status()
+            elif arg == '--smart':
+                smart_seed()
+            else:
+                seed_database()
         else:
             seed_database()

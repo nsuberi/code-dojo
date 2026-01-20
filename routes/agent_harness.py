@@ -204,7 +204,9 @@ def start_articulation_session(submission_id):
         if data.get('diff_content'):
             harness.set_diff_content(data['diff_content'])
 
-        result = harness.start_session()
+        # Pass core_goal_id if clicking on a specific gem
+        core_goal_id = data.get('core_goal_id')
+        result = harness.start_session(focus_goal_id=core_goal_id)
 
         if 'error' in result:
             return jsonify({'error': result['error']}), 400

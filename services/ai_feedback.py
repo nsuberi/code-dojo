@@ -5,31 +5,37 @@ from anthropic import Anthropic
 from config import Config
 
 
-def generate_ai_feedback(challenge_description, diff_content, challenge_rubric=None, submission_id=None):
+def generate_ai_feedback(challenge_description, diff_content, challenge_rubric=None, submission_id=None,
+                        pr_metadata=None, pr_files=None):
     """
     Generate AI feedback for a code submission using Claude.
 
     Uses agentic review when a challenge rubric is available for multi-approach
-    evaluation with structured feedback.
+    evaluation with structured feedback. Enhanced with architectural analysis
+    via LangGraph orchestration when PR data is available.
 
     Args:
         challenge_description: The challenge/task description in markdown
         diff_content: The code diff showing student's changes
         challenge_rubric: Optional ChallengeRubric object for agentic review
         submission_id: Optional submission ID for tracing
+        pr_metadata: Optional PR metadata dict from GitHub API
+        pr_files: Optional list of PR file dicts from GitHub API
 
     Returns:
         If challenge_rubric provided: dict with content, detected_approach, evaluation, etc.
         Otherwise: String containing the AI feedback
     """
-    # Use agentic review when rubric is available (Section 4)
+    # Use orchestrated review when rubric is available (Section 4)
     if challenge_rubric:
-        from services.agentic_review import AgenticReviewService
-        service = AgenticReviewService(submission_id)
-        return service.run_full_review(
+        from services.review_orchestrator import orchestrate_review
+        return orchestrate_review(
+            submission_id=submission_id,
             challenge_md=challenge_description,
             diff_content=diff_content,
-            rubric=challenge_rubric.get_rubric()
+            rubric=challenge_rubric.get_rubric(),
+            pr_metadata=pr_metadata,
+            pr_files=pr_files
         )
 
     # Fallback to simple 4-point feedback for challenges without rubrics

@@ -596,3 +596,133 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ==================== Inline Voice Input ==================== */
+
+/* Status overlay positioned above textarea */
+.voice-status-overlay {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: none;
+    z-index: 10;
+    animation: slideUpFadeIn 0.2s ease-out;
+}
+
+.voice-status-overlay.active {
+    display: block;
+}
+
+/* Recording state - red theme */
+.voice-status-overlay.recording {
+    border-color: #ef4444;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.voice-recording-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: pulse-red 1s infinite;
+}
+
+.voice-recording-time {
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ef4444;
+}
+
+/* Processing state - blue theme */
+.voice-status-overlay.processing {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+}
+
+.voice-processing-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e0e0e0;
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* Error state - red theme */
+.voice-status-overlay.error {
+    border-color: #ef4444;
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* Button state transformations */
+#voice-input-btn {
+    transition: all 0.2s ease;
+}
+
+#voice-input-btn.recording {
+    background: #ef4444 !important;
+    color: white !important;
+    border-color: #dc2626 !important;
+    animation: pulse-button 1.5s infinite;
+}
+
+/* Icon switching via data-state attribute */
+#voice-input-btn[data-state="idle"] .icon-microphone {
+    display: block;
+}
+
+#voice-input-btn[data-state="idle"] .icon-stop {
+    display: none;
+}
+
+#voice-input-btn[data-state="recording"] .icon-microphone {
+    display: none;
+}
+
+#voice-input-btn[data-state="recording"] .icon-stop {
+    display: block;
+}
+
+/* Animations */
+@keyframes slideUpFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-red {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+}
+
+@keyframes pulse-button {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

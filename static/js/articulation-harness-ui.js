@@ -25,7 +25,7 @@ class ArticulationHarnessUI {
         this.container.innerHTML = `
             <div class="articulation-harness" id="articulation-harness">
                 <div class="articulation-header">
-                    <img src="/static/assets/socratic-sensei.png" alt="Sensei" class="sensei-avatar">
+                    <img src="/static/assets/socratic-sensei.png" alt="Digi Trainer" class="sensei-avatar">
                     <div class="header-text">
                         <h2>🎤 Talk Through Your Solution</h2>
                         <p>Practice explaining your code like you would to a colleague</p>
@@ -234,7 +234,7 @@ class ArticulationHarnessUI {
 
         if (role === 'assistant') {
             messageEl.innerHTML = `
-                <img src="/static/assets/socratic-sensei.png" alt="Sensei" class="message-avatar">
+                <img src="/static/assets/socratic-sensei.png" alt="Digi Trainer" class="message-avatar">
                 <div class="message-content">
                     <div class="message-text">${this.formatMessage(content)}</div>
                 </div>

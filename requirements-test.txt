@@ -1,0 +1,21 @@
+# Testing dependencies for Code Dojo
+
+# Core testing framework
+pytest>=7.0.0
+pytest-cov>=4.1.0
+
+# Mocking and fixtures
+pytest-mock>=3.12.0
+
+# Playwright for E2E testing
+playwright>=1.40.0
+pytest-playwright>=0.4.3
+
+# HTTP testing
+requests-mock>=1.11.0
+
+# Flask testing utilities
+flask-testing>=0.8.1
+
+# Code coverage
+coverage>=7.0.0
