@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from models import db
 from models.user import User
+from models.scheduled_session import ScheduledSession
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -84,7 +85,16 @@ def logout():
 def account():
     """User account page showing submission history."""
     submissions = current_user.submissions.order_by(db.desc('created_at')).all()
-    return render_template('account.html', submissions=submissions)
+
+    # Get upcoming scheduled sessions
+    scheduled_sessions = ScheduledSession.query.filter(
+        ScheduledSession.user_id == current_user.id,
+        ScheduledSession.session_completed_at.is_(None)
+    ).order_by(ScheduledSession.scheduled_at.desc()).all()
+
+    return render_template('account.html',
+                           submissions=submissions,
+                           scheduled_sessions=scheduled_sessions)
 
 
 @auth_bp.route('/reset-password', methods=['GET', 'POST'])

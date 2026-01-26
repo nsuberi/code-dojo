@@ -19,7 +19,58 @@
             <div class="stat-number">{{ pending_reviews }}</div>
             <div class="stat-label">Pending Reviews</div>
         </div>
+        <div class="stat-card {% if scheduled_sessions %}highlight-alt{% endif %}">
+            <div class="stat-number">{{ scheduled_sessions | length }}</div>
+            <div class="stat-label">Scheduled Sessions</div>
+        </div>
     </div>
+
+    <!-- Scheduled Sessions Section -->
+    {% if scheduled_sessions %}
+    <section class="scheduled-sessions">
+        <h2>Scheduled Sensei Sessions</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Challenge</th>
+                    <th>Eligibility</th>
+                    <th>Digi-Trainer Progress</th>
+                    <th>Scheduled</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in scheduled_sessions %}
+                    <tr>
+                        <td>{{ session.user.email }}</td>
+                        <td>{{ session.submission.goal.title }}</td>
+                        <td>
+                            {% if session.eligibility_reason == 'needs_work_feedback' %}
+                                <span class="badge badge-warning">Needs Work</span>
+                            {% else %}
+                                <span class="badge badge-info">Digi-Trainer</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="progress-stats">
+                                {{ session.goals_passed }} passed, {{ session.goals_engaged }} engaged / {{ session.total_goals }} total
+                                {% if session.total_goals > 0 %}
+                                    <span class="progress-percent">({{ session.engagement_percent() }}%)</span>
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>{{ session.scheduled_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td class="action-buttons-cell">
+                            <a href="{{ url_for('admin.view_scheduled_session', session_id=session.id) }}"
+                               class="btn btn-primary btn-small">View Details</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
 
     <!-- Pending Reviews Section -->
     <section class="pending-reviews">
@@ -193,6 +244,39 @@
     .goal-topic-item .topic-count {
         color: var(--text-secondary);
         font-size: 0.9rem;
+    }
+
+    .stat-card.highlight-alt {
+        background: linear-gradient(135deg, #f0abfc, #c084fc);
+        color: white;
+    }
+
+    .scheduled-sessions {
+        margin-bottom: 2rem;
+    }
+
+    .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .progress-stats {
+        font-size: 0.9rem;
+    }
+
+    .progress-percent {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+
+    .action-buttons-cell {
+        display: flex;
+        gap: 0.5rem;
     }
 </style>
 {% endblock %}

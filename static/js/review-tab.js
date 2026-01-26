@@ -151,12 +151,8 @@ class ReviewTab {
             }
 
             // Update gem status if provided
-            if (data.engaged) {
-                this.updateGemStatus(this.currentCoreGoalId, 'engaged');
-            }
-
-            if (data.passed) {
-                this.updateGemStatus(this.currentCoreGoalId, 'passed');
+            if (data.gem_unlocked && data.gem_status) {
+                this.updateGemStatus(this.currentCoreGoalId, data.gem_status);
             }
 
         } catch (error) {
@@ -218,7 +214,7 @@ class ReviewTab {
                         </svg>
                         <div>
                             <p>Your Sensei is here to help you level up. They'll assess where you are in your learning journey, identify concepts you're still working to embody, and suggest your next training exercises.</p>
-                            <a href="/scheduling/book?goal_id=${this.goalId}" class="btn btn-primary">Schedule a Sensei Session</a>
+                            <a href="/schedule/${this.submissionId}" class="btn btn-primary">Schedule a Sensei Session</a>
                         </div>
                     </div>
                 `;

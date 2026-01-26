@@ -49,12 +49,31 @@ def format_goal_menu(goals):
 
 
 def parse_topic_selection(user_message, learning_goals):
-    """Parse user's topic selection from their message."""
-    message_lower = user_message.lower()
+    """Parse user's topic selection from their message.
 
-    # Check for number selection
+    Only matches when:
+    - Message is exactly a number (e.g., "1", "2")
+    - Message starts with a number followed by space/punctuation (e.g., "1.", "2 -")
+    - Message contains the goal title as a distinct phrase
+
+    This prevents false matches like "401" being interpreted as topic "1".
+    """
+    import re
+
+    message_lower = user_message.lower().strip()
+
+    # Check for exact number match (message is just "1", "2", etc.)
     for i, goal in enumerate(learning_goals):
-        if str(i + 1) in message_lower or goal['title'].lower() in message_lower:
+        num = str(i + 1)
+        # Exact match or number at start followed by non-digit
+        if message_lower == num or re.match(rf'^{num}(?:\.|,|\s|$)', message_lower):
+            return i
+
+    # Check for goal title (must be a significant portion of the message to avoid false matches)
+    for i, goal in enumerate(learning_goals):
+        title_lower = goal['title'].lower()
+        # Title should be at least 50% of the message to count as a selection
+        if title_lower in message_lower and len(title_lower) >= len(message_lower) * 0.5:
             return i
 
     return None
@@ -71,18 +90,47 @@ def format_indicators(indicators):
     return "\n".join(f"- {indicator}" for indicator in indicators)
 
 
-@traceable(name="evaluate_rubric_item", metadata={"feature": "rubric_evaluation"})
-def evaluate_rubric_item(student_response, rubric_item, langsmith_project=None):
+def evaluate_rubric_item(student_response, rubric_item, langsmith_extra=None):
     """Binary pass/fail evaluation using Claude.
 
     This is SEPARATE from the Socratic conversation.
     This is the agent's internal evaluation logic.
+
+    Args:
+        student_response: The student's articulation response
+        rubric_item: The rubric item to evaluate against
+        langsmith_extra: Optional dict with LangSmith config including:
+            - metadata: dict with session_id for thread grouping
+            - parent: trace headers for proper parent-child linking
     """
+    from langsmith import trace
+
     api_key = Config.ANTHROPIC_API_KEY
     if not api_key:
         return False, "No API key configured"
 
-    prompt = f"""Evaluate if student demonstrates understanding of this criterion:
+    # Build metadata for LangSmith trace
+    metadata = {"feature": "rubric_evaluation"}
+    if langsmith_extra and "metadata" in langsmith_extra:
+        metadata.update(langsmith_extra["metadata"])
+
+    # Extract parent headers for proper trace nesting
+    parent_headers = None
+    if langsmith_extra and "parent" in langsmith_extra:
+        parent_headers = langsmith_extra["parent"]
+
+    # Use trace() context manager with parent headers for proper nesting
+    with trace(
+        name="evaluate_rubric_item",
+        inputs={
+            "student_response": student_response,
+            "criterion": rubric_item['criterion'],
+            "pass_indicators": rubric_item['pass_indicators']
+        },
+        metadata=metadata,
+        parent=parent_headers  # Link to parent for proper nesting in LangSmith
+    ) as eval_run_tree:
+        prompt = f"""Evaluate if student demonstrates understanding of this criterion:
 
 CRITERION: {rubric_item['criterion']}
 
@@ -95,19 +143,21 @@ STUDENT RESPONSE:
 Evaluate objectively. Return JSON: {{"passed": true/false, "evaluation": "brief explanation"}}
 Only return the JSON, nothing else."""
 
-    try:
-        client = Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=200,
-            messages=[{"role": "user", "content": prompt}]
-        )
+        try:
+            client = Anthropic(api_key=api_key)
+            response = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=200,
+                messages=[{"role": "user", "content": prompt}]
+            )
 
-        result = json.loads(response.content[0].text)
-        return result['passed'], result.get('evaluation', '')
+            result = json.loads(response.content[0].text)
+            eval_run_tree.outputs = {"passed": result['passed'], "evaluation": result.get('evaluation', '')}
+            return result['passed'], result.get('evaluation', '')
 
-    except Exception as e:
-        return False, f"Error evaluating: {str(e)}"
+        except Exception as e:
+            eval_run_tree.outputs = {"passed": False, "error": str(e)}
+            return False, f"Error evaluating: {str(e)}"
 
 
 class SocraticHarnessBase:
@@ -192,14 +242,32 @@ class SocraticHarnessBase:
         return valid_count / total >= 0.5
 
     def detect_frustration(self, messages):
-        """Detect user frustration from message patterns."""
+        """Detect user frustration from message patterns.
+
+        Checks the last 5 messages for frustration signals. Returns True
+        if any signal is found, indicating the user may need a different
+        approach or wants to move on from the current topic.
+        """
         frustration_signals = [
-            "I don't understand",
+            # Original signals
+            "i don't understand",
             "can we move on",
             "this is confusing",
             "skip this",
-            "I give up",
-            "this doesn't make sense"
+            "i give up",
+            "this doesn't make sense",
+            # New signals for broader detection
+            "i'm lost",
+            "too hard",
+            "makes no sense",
+            "forget it",
+            "whatever",
+            "just tell me",
+            "i'm stuck",
+            "help me",
+            "i'm confused",
+            "move on",
+            "next topic",
         ]
 
         for msg in messages[-5:]:

@@ -24,3 +24,4 @@ from models.voice_input_metrics import VoiceInputMetrics
 from models.challenge_rubric import ChallengeRubric
 from models.sensei_evaluation import SenseiEvaluation
 from models.architectural_analysis import ArchitecturalAnalysis
+from models.scheduled_session import ScheduledSession

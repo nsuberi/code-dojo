@@ -248,6 +248,22 @@ def send_articulation_message(submission_id):
         # Ensure session stays attached to db.session for lazy loading
         db.session.add(session)
         harness.session = session
+        # Restore thread IDs and trace headers for proper parent-child linking
+        harness._thread_id = session.langsmith_run_id
+        harness._topic_thread_id = session.current_topic_thread_id
+
+        # Restore trace headers for proper parent-child linking in LangSmith
+        import json
+        if session.langsmith_trace_headers:
+            harness._parent_trace_headers = json.loads(session.langsmith_trace_headers)
+        else:
+            harness._parent_trace_headers = None
+
+        if session.current_topic_trace_headers:
+            harness._topic_trace_headers = json.loads(session.current_topic_trace_headers)
+        else:
+            harness._topic_trace_headers = None
+
         store_harness(session_id, harness)
 
     try:
@@ -282,6 +298,22 @@ def process_voice_input(submission_id):
         # Ensure session stays attached to db.session for lazy loading
         db.session.add(session)
         harness.session = session
+        # Restore thread IDs and trace headers for proper parent-child linking
+        harness._thread_id = session.langsmith_run_id
+        harness._topic_thread_id = session.current_topic_thread_id
+
+        # Restore trace headers for proper parent-child linking in LangSmith
+        import json
+        if session.langsmith_trace_headers:
+            harness._parent_trace_headers = json.loads(session.langsmith_trace_headers)
+        else:
+            harness._parent_trace_headers = None
+
+        if session.current_topic_trace_headers:
+            harness._topic_trace_headers = json.loads(session.current_topic_trace_headers)
+        else:
+            harness._topic_trace_headers = None
+
         store_harness(session_id, harness)
 
     try:

@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+
+{% block title %}Scheduled Session - {{ user.email }} - Code Dojo{% endblock %}
+
+{% block content %}
+<div class="session-detail-page">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a> &raquo;
+        <span>Scheduled Session #{{ scheduled_session.id }}</span>
+    </nav>
+
+    <header class="page-header">
+        <h1>Scheduled Sensei Session</h1>
+        <p class="subtitle">
+            Student: <strong>{{ user.email }}</strong> |
+            Challenge: <strong>{{ submission.goal.title }}</strong>
+        </p>
+    </header>
+
+    <!-- Session Info -->
+    <section class="info-card">
+        <h2>Session Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Scheduled At</span>
+                <span class="info-value">{{ scheduled_session.scheduled_at.strftime('%B %d, %Y at %H:%M') }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Eligibility Reason</span>
+                <span class="info-value">
+                    {% if scheduled_session.eligibility_reason == 'needs_work_feedback' %}
+                        <span class="badge badge-warning">Needs Work Feedback</span>
+                    {% else %}
+                        <span class="badge badge-info">Digi-Trainer Engagement</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Submission</span>
+                <span class="info-value">
+                    <a href="{{ url_for('admin.review_submission', submission_id=submission.id) }}">
+                        Submission #{{ submission.id }}
+                    </a>
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Status</span>
+                <span class="info-value">
+                    {% if scheduled_session.session_completed_at %}
+                        <span class="badge badge-success">Completed {{ scheduled_session.session_completed_at.strftime('%Y-%m-%d') }}</span>
+                    {% else %}
+                        <span class="badge badge-pending">Pending</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Engagement Stats at Time of Scheduling -->
+    <section class="info-card">
+        <h2>Digi-Trainer Progress (at scheduling)</h2>
+        <div class="engagement-stats">
+            <div class="stat-item">
+                <span class="stat-number">{{ scheduled_session.goals_passed }}</span>
+                <span class="stat-label">Passed</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ scheduled_session.goals_engaged }}</span>
+                <span class="stat-label">Engaged</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ scheduled_session.total_goals }}</span>
+                <span class="stat-label">Total Goals</span>
+            </div>
+            <div class="stat-item highlight">
+                <span class="stat-number">{{ scheduled_session.engagement_percent() }}%</span>
+                <span class="stat-label">Engagement</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Current Goal Progress -->
+    {% if current_goal_progress %}
+    <section class="info-card">
+        <h2>Current Goal Progress</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Goal</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for progress in current_goal_progress %}
+                    <tr>
+                        <td>{{ progress.core_goal.title if progress.core_goal else 'Unknown' }}</td>
+                        <td>
+                            {% if progress.status == 'passed' %}
+                                <span class="badge badge-success">Passed</span>
+                            {% elif progress.status == 'engaged' %}
+                                <span class="badge badge-info">Engaged</span>
+                            {% else %}
+                                <span class="badge badge-secondary">{{ progress.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ progress.updated_at.strftime('%Y-%m-%d %H:%M') if progress.updated_at else '-' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+
+    <!-- Agent Sessions -->
+    {% if agent_sessions %}
+    <section class="info-card">
+        <h2>Agent Sessions ({{ agent_sessions | length }})</h2>
+        <div class="agent-sessions-list">
+            {% for session in agent_sessions %}
+                <details class="agent-session-item">
+                    <summary>
+                        <span class="session-type">{{ session.session_type or 'Unknown' }}</span>
+                        <span class="session-date">{{ session.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        <span class="message-count">{{ session.messages.count() }} messages</span>
+                    </summary>
+                    <div class="messages-preview">
+                        {% for msg in session.messages.limit(10).all() %}
+                            <div class="message message-{{ msg.role }}">
+                                <div class="message-role">{{ msg.role | title }}</div>
+                                <div class="message-content">{{ msg.content[:500] }}{% if msg.content|length > 500 %}...{% endif %}</div>
+                            </div>
+                        {% endfor %}
+                        {% if session.messages.count() > 10 %}
+                            <p class="more-messages">... and {{ session.messages.count() - 10 }} more messages</p>
+                        {% endif %}
+                    </div>
+                </details>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Anatomy Conversations -->
+    {% if conversations %}
+    <section class="info-card">
+        <h2>Anatomy Conversations ({{ conversations | length }})</h2>
+        <p class="section-description">
+            <a href="{{ url_for('admin.submission_conversations', submission_id=submission.id) }}" class="btn btn-small">
+                View Full Conversations
+            </a>
+        </p>
+        <ul class="conversations-summary">
+            {% for conv in conversations %}
+                <li>
+                    <span class="topic-name">{{ conv.topic_name or conv.topic.name }}</span>
+                    <span class="status-badge status-{{ conv.status }}">{{ conv.status }}</span>
+                    <span class="conv-date">{{ conv.created_at.strftime('%Y-%m-%d') }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    <!-- Complete Session Form -->
+    {% if not scheduled_session.session_completed_at %}
+    <section class="info-card complete-form">
+        <h2>Mark Session as Completed</h2>
+        <form action="{{ url_for('admin.complete_scheduled_session', session_id=scheduled_session.id) }}" method="POST">
+            <div class="form-group">
+                <label for="notes">Session Notes (optional)</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="Add any notes about the session..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Mark as Completed</button>
+        </form>
+    </section>
+    {% else %}
+        {% if scheduled_session.notes %}
+        <section class="info-card">
+            <h2>Session Notes</h2>
+            <div class="notes-content">{{ scheduled_session.notes }}</div>
+        </section>
+        {% endif %}
+    {% endif %}
+
+    <div class="action-buttons">
+        <a href="{{ url_for('admin.review_submission', submission_id=submission.id) }}" class="btn btn-secondary">View Submission</a>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<style>
+    .session-detail-page {
+        max-width: 900px;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header .subtitle {
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+
+    .info-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .info-card h2 {
+        font-size: 1.25rem;
+        margin: 0 0 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+    }
+
+    .info-value {
+        font-weight: 500;
+    }
+
+    .engagement-stats {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+        border-radius: 0.5rem;
+    }
+
+    .stat-item .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .stat-item .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .stat-item.highlight {
+        background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+    }
+
+    .badge-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-secondary {
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    .agent-sessions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .agent-session-item {
+        border: 1px solid var(--border-color);
+        border-radius: 0.375rem;
+    }
+
+    .agent-session-item summary {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        background: #f8fafc;
+    }
+
+    .agent-session-item summary:hover {
+        background: #f1f5f9;
+    }
+
+    .session-type {
+        font-weight: 500;
+        flex: 1;
+    }
+
+    .session-date,
+    .message-count {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .messages-preview {
+        padding: 1rem;
+        max-height: 400px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .message {
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.9rem;
+    }
+
+    .message-user {
+        background: #dbeafe;
+        margin-left: 1rem;
+    }
+
+    .message-assistant {
+        background: #f1f5f9;
+        margin-right: 1rem;
+    }
+
+    .message-role {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .message-content {
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .more-messages {
+        text-align: center;
+        color: var(--text-secondary);
+        font-style: italic;
+        padding: 0.5rem;
+    }
+
+    .conversations-summary {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .conversations-summary li {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .conversations-summary li:last-child {
+        border-bottom: none;
+    }
+
+    .conversations-summary .topic-name {
+        flex: 1;
+        font-weight: 500;
+    }
+
+    .conversations-summary .conv-date {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .complete-form .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .complete-form label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .complete-form textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.375rem;
+        font-family: inherit;
+        resize: vertical;
+    }
+
+    .notes-content {
+        white-space: pre-wrap;
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 0.375rem;
+    }
+
+    .action-buttons {
+        margin-top: 2rem;
+        display: flex;
+        gap: 0.75rem;
+    }
+</style>
+{% endblock %}

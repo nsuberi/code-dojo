@@ -1,3 +1,7 @@
+Remove the references to AnatomyConversations. This terminology is no longer relevant
+
+Remove references to project-setup.sh
+
 Want the student to be able to view their diff, as well as the teacher.
 Allow for collapsing the diffs to see the list of files, and allow for opening up the files one at time,
 similar to how github shows diffs in a PR

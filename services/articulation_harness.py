@@ -4,7 +4,7 @@ import os
 import uuid
 import json
 from datetime import datetime
-from langsmith import traceable
+from langsmith import traceable, trace
 from config import Config
 from models import db
 from models.agent_session import AgentSession, AgentMessage
@@ -42,12 +42,39 @@ class ArticulationHarness(SocraticHarnessBase):
             langsmith_project=langsmith_project
         )
         self.diff_content = None
+        self._thread_id = None  # Thread ID for grouping traces in LangSmith
+        self._parent_trace_headers = None  # Store trace headers for parent-child linking
+        self._topic_thread_id = None  # Thread ID for current topic conversation
+        self._topic_trace_headers = None  # Store trace headers for topic-level linking
 
     def set_diff_content(self, diff_content):
         """Set the code diff content for reference."""
         self.diff_content = diff_content
 
-    @traceable(name="articulation_harness_orchestration", metadata={"harness_type": "articulation"})
+    def _get_langsmith_extra(self):
+        """Get LangSmith extra config with parent headers for proper trace linking.
+
+        This ensures all child traces include parent headers so they
+        are properly nested in LangSmith's trace view.
+        """
+        if not self._thread_id:
+            return None
+
+        extra = {
+            "metadata": {
+                "session_id": self._thread_id,
+                "harness_type": "articulation"
+            }
+        }
+
+        # Include parent headers so child traces link properly
+        if self._topic_trace_headers:
+            extra["parent"] = self._topic_trace_headers
+        elif self._parent_trace_headers:
+            extra["parent"] = self._parent_trace_headers
+
+        return extra
+
     def start_session(self, focus_goal_id=None):
         """Start a new articulation session.
 
@@ -56,6 +83,32 @@ class ArticulationHarness(SocraticHarnessBase):
         """
         # Load learning goals
         goals = self.get_core_learning_goals()
+
+        # Generate thread ID for grouping all traces in this session
+        # Use a deterministic UUID based on session creation to ensure consistency
+        self._thread_id = str(uuid.uuid4())
+
+        # Create parent trace, capture headers, then IMMEDIATELY close it
+        # This prevents the parent from staying "running" forever if user navigates away
+        with trace(
+            name="articulation_harness_orchestration",
+            inputs={
+                "submission_id": self.submission_id,
+                "user_id": self.user_id,
+                "learning_goal_id": self.learning_goal_id,
+                "focus_goal_id": focus_goal_id
+            },
+            metadata={
+                "session_id": self._thread_id,  # Required for LangSmith thread grouping
+                "harness_type": "articulation",
+                "user_id": self.user_id,
+                "submission_id": self.submission_id,
+                "learning_goal_id": self.learning_goal_id
+            },
+            run_id=uuid.UUID(self._thread_id)  # Use thread_id as run_id for consistency
+        ) as run_tree:
+            self._parent_trace_headers = run_tree.to_headers()
+        # Parent trace ends here (no longer "running" forever)
 
         # Create agent session
         self.session = AgentSession(
@@ -67,6 +120,8 @@ class ArticulationHarness(SocraticHarnessBase):
             context='post_submission',
             status='active',
             total_goals=len(goals),
+            langsmith_run_id=self._thread_id,  # Store the thread ID for querying
+            langsmith_trace_headers=json.dumps(dict(self._parent_trace_headers)),  # Store headers for reconstruction
             created_at=datetime.utcnow()
         )
         db.session.add(self.session)
@@ -74,9 +129,20 @@ class ArticulationHarness(SocraticHarnessBase):
 
         # If focus_goal_id provided, immediately focus on that specific goal
         if focus_goal_id:
+            # Convert to int - frontend sends string from dataset attribute
+            try:
+                focus_goal_id = int(focus_goal_id)
+            except (TypeError, ValueError):
+                pass  # Keep as-is if conversion fails
             for i, goal in enumerate(goals):
                 if goal['id'] == focus_goal_id:
-                    return self._focus_on_goal(goals, i, introduce=True)
+                    result = self._focus_on_goal(goals, i, introduce=True)
+                    # Add fields expected by frontend
+                    result['session_id'] = self.session.id
+                    result['opening_message'] = result.get('response')
+                    result['goals'] = goals
+                    result['can_request_instructor'] = result['engagement']['can_request_instructor']
+                    return result
 
         # Calculate current engagement
         engagement = self.calculate_engagement_stats()
@@ -135,13 +201,29 @@ Explaining your code verbally is essential for code reviews and technical interv
 
         return "\n".join(lines)
 
-    @traceable(name="articulation_message_process", metadata={"harness_type": "articulation"})
+    def _close_topic_trace(self, goal=None, status=None):
+        """Clear the current topic trace headers.
+
+        Args:
+            goal: The goal that was being discussed (optional, for logging)
+            status: The outcome status - 'passed', 'engaged', or 'frustrated' (optional, for logging)
+        """
+        # Clear topic headers (traces are already completed since we use with-blocks)
+        self._topic_trace_headers = None
+        self._topic_thread_id = None
+
+        # Also clear from session if it exists
+        if self.session:
+            self.session.current_topic_thread_id = None
+            self.session.current_topic_trace_headers = None
+            db.session.commit()
+
     def process_message(self, user_message, input_mode='text', voice_duration=None, original_transcription=None):
         """Process a user message in the articulation session."""
         if not self.session:
             return {'error': 'No active session'}
 
-        # Store user message
+        # Store user message first
         self.store_message(
             'user',
             user_message,
@@ -150,53 +232,104 @@ Explaining your code verbally is essential for code reviews and technical interv
             metadata={'original_transcription': original_transcription} if original_transcription else None
         )
 
-        goals = self.get_core_learning_goals()
+        # Check for frustration before normal processing (only if actively on a topic)
+        messages = [m.content for m in self.session.messages.all()]
+        is_frustrated = self.session.current_goal_index is not None and self.detect_frustration(messages)
 
-        # Check for topic selection or mode switch
-        if "guide me" in user_message.lower() or "all of them" in user_message.lower():
-            self.session.guide_me_mode = True
-            db.session.commit()
-            return self._start_guided_articulation(goals)
+        # Use trace() with parent headers for proper nesting in LangSmith
+        with trace(
+            name="articulation_message_process",
+            inputs={
+                "user_message": user_message,
+                "input_mode": input_mode,
+                "voice_duration": voice_duration
+            },
+            metadata={
+                "topic_thread_id": self._topic_thread_id,  # Link to current topic thread
+                "session_id": self._thread_id,  # Required for LangSmith thread grouping
+                "harness_type": "articulation",
+                "input_mode": input_mode,
+                "frustration_detected": is_frustrated  # Track frustration in traces
+            },
+            parent=self._topic_trace_headers or self._parent_trace_headers  # Link to parent for nesting
+        ) as message_run_tree:
+            goals = self.get_core_learning_goals()
+            result = None
 
-        if "suggest" in user_message.lower():
-            next_index = self.recommend_next_goal()
-            if next_index is not None:
-                return self._focus_on_goal(goals, next_index, introduce=True)
+            # Handle frustration immediately - end topic and offer to move on
+            if is_frustrated:
+                result = self._handle_frustration_and_end_topic(user_message, goals)
+
+            # Check for topic selection or mode switch
+            elif "guide me" in user_message.lower() or "all of them" in user_message.lower():
+                self.session.guide_me_mode = True
+                db.session.commit()
+                result = self._start_guided_articulation(goals)
+
+            elif "suggest" in user_message.lower():
+                next_index = self.recommend_next_goal()
+                if next_index is not None:
+                    result = self._focus_on_goal(goals, next_index, introduce=True)
+                else:
+                    result = self._all_goals_completed()
+
+            # Check for specific topic selection
+            elif (selected_index := parse_topic_selection(user_message, goals)) is not None:
+                result = self._focus_on_goal(goals, selected_index, introduce=True)
+
+            # If we have a current goal, evaluate the response
+            elif self.session.current_goal_index is not None:
+                result = self._evaluate_articulation(user_message, goals)
+
+            # General response
             else:
-                return self._all_goals_completed()
+                result = self._generate_articulation_response(user_message, goals)
 
-        # Check for specific topic selection
-        selected_index = parse_topic_selection(user_message, goals)
-        if selected_index is not None:
-            return self._focus_on_goal(goals, selected_index, introduce=True)
+            # Set outputs for LangSmith visibility
+            if result:
+                message_run_tree.outputs = {
+                    "response": result.get("response"),
+                    "engagement": result.get("engagement")
+                }
+            return result
 
-        # If we have a current goal, evaluate the response
-        if self.session.current_goal_index is not None:
-            return self._evaluate_articulation(user_message, goals)
-
-        # General response
-        return self._generate_articulation_response(user_message, goals)
-
-    @traceable(name="articulation_voice_process", metadata={"harness_type": "articulation", "input_mode": "voice"})
     def process_voice_input(self, audio_data, input_mode='voice'):
         """Process voice input for articulation."""
-        # Transcribe the audio
-        result = transcribe_audio(
-            audio_data,
-            user_id=self.user_id,
-            session_id=self.session.id if self.session else None
-        )
+        # Use trace() with parent headers for proper nesting in LangSmith
+        with trace(
+            name="articulation_voice_process",
+            inputs={
+                "audio_data_size": len(audio_data) if audio_data else 0,
+                "session_id": self.session.id if self.session else None
+            },
+            metadata={
+                "topic_thread_id": self._topic_thread_id,  # Link to current topic thread
+                "session_id": self._thread_id,  # Required for LangSmith thread grouping
+                "harness_type": "articulation",
+                "input_mode": "voice"
+            },
+            parent=self._topic_trace_headers or self._parent_trace_headers  # Link to parent for nesting
+        ) as voice_run_tree:
+            # Transcribe the audio
+            result = transcribe_audio(
+                audio_data,
+                user_id=self.user_id,
+                session_id=self.session.id if self.session else None
+            )
 
-        if not result['success']:
-            return {'error': result['error']}
+            if not result['success']:
+                voice_run_tree.outputs = {"success": False, "error": result['error']}
+                return {'error': result['error']}
 
-        # Process the transcription as a message
-        return self.process_message(
-            result['transcription'],
-            input_mode='voice',
-            voice_duration=result.get('duration_seconds'),
-            original_transcription=result['transcription']
-        )
+            voice_run_tree.outputs = {"transcription": result.get('transcription'), "success": True}
+
+            # Process the transcription as a message
+            return self.process_message(
+                result['transcription'],
+                input_mode='voice',
+                voice_duration=result.get('duration_seconds'),
+                original_transcription=result['transcription']
+            )
 
     def _start_guided_articulation(self, goals):
         """Start guided articulation through all goals."""
@@ -211,9 +344,38 @@ Explaining your code verbally is essential for code reviews and technical interv
         """Focus the conversation on explaining a specific goal."""
         goal = goals[goal_index]
 
+        # Close any existing topic trace before starting a new one
+        if self._topic_trace_headers:
+            self._close_topic_trace()
+
+        # Create new topic thread ID for this goal conversation
+        self._topic_thread_id = str(uuid.uuid4())
+
+        # Create topic trace, capture headers, then immediately close
+        with trace(
+            name="articulation_topic_conversation",
+            inputs={
+                "goal_id": goal['id'],
+                "goal_title": goal['title'],
+                "introduce": introduce
+            },
+            metadata={
+                "topic_thread_id": self._topic_thread_id,
+                "session_id": self._thread_id,  # Link to parent session
+                "goal_id": goal['id'],
+                "goal_title": goal['title'],
+                "harness_type": "articulation"
+            },
+            parent=self._parent_trace_headers  # Link to parent for nesting
+        ) as topic_run_tree:
+            self._topic_trace_headers = topic_run_tree.to_headers()
+        # Topic trace ends here (child traces will link via headers)
+
         self.session.current_goal_index = goal_index
         self.session.current_rubric_item_index = 0
         self.session.current_attempts = 0
+        self.session.current_topic_thread_id = self._topic_thread_id  # Persist for HTTP boundaries
+        self.session.current_topic_trace_headers = json.dumps(dict(self._topic_trace_headers))  # Store headers
         db.session.commit()
 
         # Mark as in progress
@@ -243,6 +405,64 @@ Walk me through how you implemented this in your code. How would you explain it 
             'engagement': self.calculate_engagement_stats()
         }
 
+    def _handle_frustration_and_end_topic(self, user_message, goals):
+        """Handle frustration by ending current topic and marking as needs work.
+
+        When a user expresses frustration:
+        1. Acknowledge the difficulty empathetically
+        2. IMMEDIATELY end the current topic (no prolonged help attempts)
+        3. Mark topic as "engaged" (needs more work, not passed)
+        4. Offer to move on to a different topic or end session
+
+        Returns dict with frustration_detected, topic_ended, topic_status flags
+        for trace visibility.
+        """
+        current_goal = None
+        if self.session.current_goal_index is not None and self.session.current_goal_index < len(goals):
+            current_goal = goals[self.session.current_goal_index]
+
+        if current_goal:
+            # Mark topic as "engaged" (needs more work) - NOT passed
+            self.update_gem_state(current_goal['id'], 'engaged')
+            self.session.goals_engaged = (self.session.goals_engaged or 0) + 1
+            db.session.commit()
+
+            response = f"""I can see this topic is challenging right now - that's completely normal.
+
+🔵 I've marked **{current_goal['title']}** as something to revisit later. No pressure.
+
+Let's move on. Would you like to:
+1. Try a different concept
+2. End this session for now
+
+You can always come back to practice this topic when you're ready."""
+
+        else:
+            response = """I can see you're finding this challenging - that's completely normal.
+
+Would you like to:
+1. Try a different concept
+2. Take a break and come back later"""
+
+        self.store_message('assistant', response)
+
+        # Close topic trace with frustration status
+        self._close_topic_trace(current_goal, 'frustrated')
+
+        # Reset current goal state
+        self.session.current_goal_index = None
+        self.session.current_rubric_item_index = 0
+        self.session.current_attempts = 0
+        db.session.commit()
+
+        return {
+            'response': response,
+            'frustration_detected': True,
+            'topic_ended': True,
+            'topic_status': 'engaged',  # Needs more work
+            'engagement': self.calculate_engagement_stats()
+        }
+
     def _evaluate_articulation(self, user_message, goals):
         """Evaluate the student's articulation against rubric."""
         current_goal = goals[self.session.current_goal_index]
@@ -262,8 +482,12 @@ Walk me through how you implemented this in your code. How would you explain it 
         self.session.current_attempts += 1
         db.session.commit()
 
-        # Evaluate the response
-        passed, evaluation = evaluate_rubric_item(user_message, current_item)
+        # Evaluate the response with session_id for LangSmith thread grouping
+        passed, evaluation = evaluate_rubric_item(
+            user_message,
+            current_item,
+            langsmith_extra=self._get_langsmith_extra()
+        )
 
         # Update progress
         progress = self.get_or_create_progress(current_goal['id'])
@@ -365,6 +589,9 @@ Try to connect this to what you actually implemented in your code."""
 
     def _goal_completed(self, completed_goal, all_goals, status):
         """Handle completion of a goal."""
+        # Close topic trace for the completed goal
+        self._close_topic_trace(completed_goal, status)
+
         # Update gem state
         self.update_gem_state(completed_goal['id'], status)
 
@@ -392,12 +619,41 @@ Try to connect this to what you actually implemented in your code."""
             # Move to next goal
             next_index = self.recommend_next_goal()
             if next_index is not None:
+                next_goal = all_goals[next_index]
+
+                # Create new topic thread ID for the next goal
+                self._topic_thread_id = str(uuid.uuid4())
+
+                # Create topic trace, capture headers, then immediately close
+                with trace(
+                    name="articulation_topic_conversation",
+                    inputs={
+                        "goal_id": next_goal['id'],
+                        "goal_title": next_goal['title'],
+                        "introduce": True
+                    },
+                    metadata={
+                        "topic_thread_id": self._topic_thread_id,
+                        "session_id": self._thread_id,
+                        "goal_id": next_goal['id'],
+                        "goal_title": next_goal['title'],
+                        "harness_type": "articulation"
+                    },
+                    parent=self._parent_trace_headers  # Link to parent for nesting
+                ) as topic_run_tree:
+                    self._topic_trace_headers = topic_run_tree.to_headers()
+                # Topic trace ends here (child traces will link via headers)
+
                 self.session.current_goal_index = next_index
                 self.session.current_rubric_item_index = 0
                 self.session.current_attempts = 0
+                self.session.current_topic_thread_id = self._topic_thread_id
+                self.session.current_topic_trace_headers = json.dumps(dict(self._topic_trace_headers))
                 db.session.commit()
 
-                next_goal = all_goals[next_index]
+                # Mark new goal as in progress
+                self.update_gem_state(next_goal['id'], 'in_progress')
+
                 rubric_items = next_goal.get('rubric', {}).get('items', [])
                 first_hint = ""
                 if rubric_items:
@@ -536,6 +792,10 @@ What would you like to do next?"""
         db.session.commit()
 
         engagement = self.calculate_engagement_stats()
+
+        # Clear trace headers (no context managers to close - traces complete immediately)
+        self._parent_trace_headers = None
+        self._topic_trace_headers = None
 
         return {
             'success': True,

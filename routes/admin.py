@@ -1,5 +1,6 @@
 """Admin and instructor routes."""
 
+from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from models import db
@@ -9,6 +10,9 @@ from models.instructor_feedback import InstructorFeedback
 from models.goal import LearningGoal
 from models.anatomy_topic import AnatomyTopic
 from models.anatomy_conversation import AnatomyConversation
+from models.scheduled_session import ScheduledSession
+from models.goal_progress import GoalProgress
+from models.agent_session import AgentSession
 from middleware.auth import require_admin, require_instructor
 from services.github import fetch_github_diff, calculate_diff_stats
 
@@ -23,10 +27,16 @@ def dashboard():
     submissions = Submission.query.order_by(Submission.created_at.desc()).all()
     pending_reviews = Submission.query.filter_by(status='feedback_requested').count()
 
+    # Query uncompleted scheduled sessions
+    scheduled_sessions = ScheduledSession.query.filter(
+        ScheduledSession.session_completed_at.is_(None)
+    ).order_by(ScheduledSession.scheduled_at.desc()).all()
+
     return render_template('admin/dashboard.html',
                            students=students,
                            submissions=submissions,
-                           pending_reviews=pending_reviews)
+                           pending_reviews=pending_reviews,
+                           scheduled_sessions=scheduled_sessions)
 
 
 @admin_bp.route('/submissions/<int:submission_id>/review', methods=['GET', 'POST'])
@@ -151,3 +161,52 @@ def submission_conversations(submission_id):
     return render_template('admin/submission_conversations.html',
                            submission=submission,
                            conversations=conversations)
+
+
+@admin_bp.route('/scheduled-sessions/<int:session_id>')
+@require_instructor
+def view_scheduled_session(session_id):
+    """View full details of a scheduled session including goal progress and conversations."""
+    scheduled_session = ScheduledSession.query.get_or_404(session_id)
+    submission = scheduled_session.submission
+    user = scheduled_session.user
+
+    # Get current goal progress for this submission's learning goals
+    core_goal_ids = [g.id for g in submission.goal.core_learning_goals]
+    current_goal_progress = GoalProgress.query.filter(
+        GoalProgress.user_id == user.id,
+        GoalProgress.core_goal_id.in_(core_goal_ids)
+    ).all() if core_goal_ids else []
+
+    # Get agent sessions for this user and submission
+    agent_sessions = AgentSession.query.filter(
+        AgentSession.user_id == user.id,
+        AgentSession.submission_id == submission.id
+    ).order_by(AgentSession.created_at.desc()).all()
+
+    # Get anatomy conversations (already scoped to submission)
+    conversations = submission.anatomy_conversations.order_by(
+        AnatomyConversation.created_at.desc()
+    ).all()
+
+    return render_template('admin/scheduled_session_detail.html',
+                           scheduled_session=scheduled_session,
+                           submission=submission,
+                           user=user,
+                           current_goal_progress=current_goal_progress,
+                           agent_sessions=agent_sessions,
+                           conversations=conversations)
+
+
+@admin_bp.route('/scheduled-sessions/<int:session_id>/complete', methods=['POST'])
+@require_instructor
+def complete_scheduled_session(session_id):
+    """Mark a scheduled session as completed."""
+    scheduled_session = ScheduledSession.query.get_or_404(session_id)
+
+    scheduled_session.session_completed_at = datetime.utcnow()
+    scheduled_session.notes = request.form.get('notes', '').strip() or None
+
+    db.session.commit()
+    flash('Session marked as completed.', 'success')
+    return redirect(url_for('admin.dashboard'))

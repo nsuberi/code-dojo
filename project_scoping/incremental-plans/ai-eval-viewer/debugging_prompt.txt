@@ -1,0 +1,151 @@
+-- Triggered ralph loop with this command and the plan created by below
+
+"Follow the plan in                            
+  @project_scoping/incremental-plans/ai-eval-viewer/adding-integration  
+  -tests-and-configuring-improvement-loop-plan.md and keep track of     
+  your task completion as you go in the plan file. It is important      
+  that you use the ai-eval-viewer as a tool to debug the code-dojo      
+  main app according to the integration tests and whether or not        
+  threads are correctly configured in LangSmith for the articulation    
+  harness, and the harness is successfully detecting good               
+  conversations and awarding gems and successfully detecting bad        
+  conversations and marking topics as needs work for students. These    
+  should all be done in the integration tests." --max-iterations 30     
+  --completion-promise "All Done!"           
+ 
+-- Generated a prompt with the below --
+
+  Use @custom-ai-eval-viewer-plan.md to understand the path that was        
+  taken for the current implementation.   
+
+We can use integration tests within the original app's context to     
+  configure the trace generation that we need for the ai-eval-viewer.   
+  The ai-eval-viewer can be used to access those traces for debugging   
+  the original app. This is the general workflow that i am hoping to    
+  use the ai-eval-viewr for.  
+ 
+ Add consideration for how to avoid rate-limits for LangSmith  
+
+ When I run the ai-eval-viewer server, there are a couple of odd aspects. It          
+  loads very small and I have to zoom in to view effectively. The       
+  features are there, and I can see traces in the left of a feature     
+  page, but when I click on it, I get errors that the thread            
+  doesn't exist. I also don't see any threads in the code-dojo          
+  project, I don't know if you have written the script yet to           
+  interact with the application and generate the sample traces.         
+  Make a plan for how to spin up the main application and create        
+  sample conversations. You can use this PR submission for the          
+  Flask API authentication task - include it in your plan:              
+  https://github.com/nsuberi/snippet-manager-starter/pull/1. You        
+  should engage in the articulation_harness conversation to have a      
+  sample dialogue where the user "gets" some of the rubric items        
+  correct, while persistently fails to adequately explain other         
+  parts of the rubric correctly. This will simulate both "Gem"          
+  acquisition and "failed understanding" conditions for stopping a      
+  certain thread. If the base app needs to be updated to facilitate     
+  this, that is in scope for this plan. You can use the LangSmith       
+  tracing to identify when threads are being captured correctly,        
+  and also use the interactions that you track in LangSmith to help     
+  you make changes to the app code for the articulation_harness         
+  conversation with the digi-trainer. 
+  
+  
+  Here are current logs after       
+  manually navigating around the current implementation of the ai       
+  eval viewer: Failed to load resource: the server responded with a     
+  status of 429 ()Understand this error                                 
+  installHook.js:1 Failed to load thread: Error: LangSmith API          
+  error: 429                                                            
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async getChildRuns (langsmith.ts:175:20)                           
+  at async getThreadDetails (langsmith.ts:236:21)                       
+  at async loadThread (ThreadDetail.tsx:37:41)                          
+  overrideMethod @ installHook.js:1Understand this error                
+  3installHook.js:1 Encountered two children with the same key,         
+  `019be5f6-8d9e-7e70-b90d-40ad69cdf5cb`. Keys should be unique so      
+  that components maintain their identity across updates.               
+  Non-unique keys may cause children to be duplicated and/or            
+  omitted — the behavior is unsupported and could change in a           
+  future version.                                                       
+  overrideMethod @ installHook.js:1Understand this error                
+  api.smith.langchain.com/api/v1/runs/query:1  Failed to load           
+  resource: the server responded with a status of 429 ()Understand      
+  this error                                                            
+  installHook.js:1 Failed to load thread: Error: LangSmith API          
+  error: 429                                                            
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async getThreadDetails (langsmith.ts:223:20)                       
+  at async loadThread (ThreadDetail.tsx:37:41)                          
+  overrideMethod @ installHook.js:1Understand this error                
+  api.smith.langchain.com/api/v1/runs/query:1  Failed to load           
+  resource: the server responded with a status of 429 ()Understand      
+  this error                                                            
+  installHook.js:1 Failed to load thread: Error: LangSmith API          
+  error: 429                                                            
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async getChildRuns (langsmith.ts:175:20)                           
+  at async getThreadDetails (langsmith.ts:236:21)                       
+  at async loadThread (ThreadDetail.tsx:37:41)                          
+  overrideMethod @ installHook.js:1Understand this error                
+  api.smith.langchain.com/api/v1/runs/query:1  Failed to load           
+  resource: the server responded with a status of 429 ()Understand      
+  this error                                                            
+  installHook.js:1 Failed to load threads: Error: LangSmith API         
+  error: 429                                                            
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async loadThreads (ThreadList.tsx:33:35)                           
+  overrideMethod @ installHook.js:1Understand this error                
+  api.smith.langchain.com/api/v1/runs/query:1  Failed to load           
+  resource: the server responded with a status of 429 ()Understand      
+  this error                                                            
+  installHook.js:1 Failed to load threads: Error: LangSmith API         
+  error: 429                                                            
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async loadThreads (ThreadList.tsx:33:35)                           
+  overrideMethod @ installHook.js:1Understand this error                
+  api.smith.langchain.com/api/v1/runs/query:1  Failed to load           
+  resource: the server responded with a status of 429 ()Understand      
+  this error                                                            
+  installHook.js:1 Failed to load feature stats: Error: LangSmith       
+  API error: 429                                                        
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async getFeatureStats (langsmith.ts:113:22)                        
+  at async loadStats (Dashboard.tsx:24:23)                              
+  overrideMethod @ installHook.js:1Understand this error                
+  api.smith.langchain.com/api/v1/runs/query:1  Failed to load           
+  resource: the server responded with a status of 429 ()Understand      
+  this error                                                            
+  installHook.js:1 Failed to load feature stats: Error: LangSmith       
+  API error: 429                                                        
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async getFeatureStats (langsmith.ts:113:22)                        
+  at async loadStats (Dashboard.tsx:24:23)                              
+  overrideMethod @ installHook.js:1Understand this error                
+  api.smith.langchain.com/api/v1/runs/query:1  Failed to load           
+  resource: the server responded with a status of 429 ()Understand      
+  this error                                                            
+  installHook.js:1 Failed to load thread: Error: LangSmith API          
+  error: 429                                                            
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async getThreadDetails (langsmith.ts:223:20)                       
+  at async loadThread (ThreadDetail.tsx:37:41)                          
+  overrideMethod @ installHook.js:1Understand this error                
+  api.smith.langchain.com/api/v1/runs/query:1  Failed to load           
+  resource: the server responded with a status of 429 ()Understand      
+  this error                                                            
+  installHook.js:1 Failed to load thread: Error: LangSmith API          
+  error: 429                                                            
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async getThreadDetails (langsmith.ts:223:20)                       
+  at async loadThread (ThreadDetail.tsx:37:41)                          
+  overrideMethod @ installHook.js:1Understand this error                
+  api.smith.langchain.com/api/v1/runs/query:1  Failed to load           
+  resource: the server responded with a status of 429 ()Understand      
+  this error                                                            
+  installHook.js:1 Failed to load thread: Error: LangSmith API          
+  error: 429                                                            
+  at langsmithFetch (langsmith.ts:62:11)                                
+  at async getThreadDetails (langsmith.ts:223:20)                       
+  at async loadThread (ThreadDetail.tsx:37:41)                          
+  overrideMethod @ installHook.js:1Understand this error. Refer to      
+  

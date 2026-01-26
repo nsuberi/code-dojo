@@ -551,11 +551,11 @@
                                          data-goal-id="{{ goal.id }}">
                                         {% for clg in core_learning_goals %}
                                         {% set progress = goal_progress | selectattr('core_goal_id', 'equalto', clg.id) | first %}
-                                        <div class="gem-item {% if progress and progress.passed %}passed{% elif progress and progress.engaged %}engaged{% else %}locked{% endif %}"
+                                        <div class="gem-item {% if progress and progress.status == 'passed' %}passed{% elif progress and progress.status == 'engaged' %}engaged{% else %}locked{% endif %}"
                                             data-goal-id="{{ clg.id }}" data-title="{{ clg.title }}">
                                             <span class="gem-icon">
-                                                {% if progress and progress.passed %}💎
-                                                {% elif progress and progress.engaged %}🔵
+                                                {% if progress and progress.status == 'passed' %}💎
+                                                {% elif progress and progress.status == 'engaged' %}🔵
                                                 {% elif progress %}⚪
                                                 {% else %}○{% endif %}
                                             </span>
@@ -630,9 +630,25 @@
                         </div>
                         <div class="card-content">
                             <div class="sensei-session-section" id="sensei-session-section">
-                                {% set gems_engaged = goal_progress | selectattr('engaged', 'equalto', true) | list |
-                                length %}
-                                {% if gems_engaged >= 1 %}
+                                {% set gems_engaged = goal_progress | selectattr('status', 'equalto', 'engaged') | list | length %}
+                                {% set gems_passed = goal_progress | selectattr('status', 'equalto', 'passed') | list | length %}
+                                {% set total_engaged = gems_engaged + gems_passed %}
+                                {% if scheduled_session %}
+                                <div class="sensei-scheduled">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    <div>
+                                        <p><strong>Session Scheduled</strong></p>
+                                        <p>You have a sensei session scheduled for {{ scheduled_session.scheduled_at.strftime('%B %d, %Y at %H:%M') }}.</p>
+                                        <a href="{{ url_for('scheduling.book', submission_id=latest_submission.id) }}" class="btn btn-secondary">View Booking</a>
+                                    </div>
+                                </div>
+                                {% elif total_engaged >= 1 %}
                                 <div class="sensei-unlocked">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
@@ -644,7 +660,7 @@
                                         <p>Your Sensei is here to help you level up. They'll assess where you are in
                                             your learning journey, identify concepts you're still working to embody, and
                                             suggest your next training exercises.</p>
-                                        <a href="{{ url_for('scheduling.book_session', goal_id=goal.id) }}"
+                                        <a href="{{ url_for('scheduling.book', submission_id=latest_submission.id) }}"
                                             class="btn btn-primary">Schedule a Sensei Session</a>
                                     </div>
                                 </div>
@@ -1759,12 +1775,23 @@
     }
 
     .sensei-locked,
-    .sensei-unlocked {
+    .sensei-unlocked,
+    .sensei-scheduled {
         display: flex;
         align-items: flex-start;
         gap: 1rem;
         padding: 1.5rem;
         border-radius: 0.5rem;
+    }
+
+    .sensei-scheduled {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
+        border: 2px solid var(--success-color);
+    }
+
+    .sensei-scheduled svg {
+        color: var(--success-color);
+        flex-shrink: 0;
     }
 
     .sensei-locked {

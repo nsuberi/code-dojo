@@ -10,6 +10,55 @@ A Flask-based learning platform where students can view modules, watch tutorials
 - **Instructor Review**: Human feedback and pass/fail grading
 - **Role-based Access**: Student, Instructor, and Admin roles
 
+## Prerequisites
+
+### Node.js Version
+
+This project uses MCP servers that require **Node.js 23+**. If you're using nvm:
+
+```bash
+nvm install 23
+nvm use 23
+nvm alias default 23
+```
+
+Verify your version:
+```bash
+node --version  # Should be v23.x.x or higher
+```
+
+### Environment Variables
+
+The project uses a `.env` file for configuration (API keys, etc.). To automatically load these variables when opening a terminal in the project directory, add this to your `~/.zshrc`:
+
+```bash
+# Auto-load .env files in current directory
+[[ -f .env ]] && set -a && source .env && set +a
+```
+
+This ensures that:
+- `set -a` marks all subsequent variable definitions for export
+- `source .env` loads the variables
+- `set +a` turns off auto-export for subsequent commands
+
+After adding this, restart your terminal or run `source ~/.zshrc`. The `.env` variables will be automatically exported whenever you start a shell session in the code-dojo directory.
+
+### Project Setup Script
+
+Before starting a Claude Code session, run the setup script to verify your environment:
+
+```bash
+source project-setup.sh
+```
+
+This script checks:
+- Node.js version (23+ required for MCP servers)
+- npm health
+- Environment variables (.env loaded and critical keys present)
+- Python virtual environment
+
+Run this at the start of each work session to ensure MCP servers and other integrations work correctly.
+
 ## Quick Start
 
 ### One-Command Startup (Recommended)

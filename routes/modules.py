@@ -8,6 +8,7 @@ from models.submission import Submission
 from models.goal_progress import GoalProgress
 from models.core_learning_goal import CoreLearningGoal
 from models.challenge_rubric import ChallengeRubric
+from models.scheduled_session import ScheduledSession
 
 modules_bp = Blueprint('modules', __name__, url_prefix='/modules')
 
@@ -30,6 +31,7 @@ def goal_detail(module_id, goal_id):
     latest_submission = None
     goal_progress = []
     core_learning_goals = []
+    scheduled_session = None
 
     if current_user.is_authenticated:
         latest_submission = Submission.query.filter_by(
@@ -51,6 +53,14 @@ def goal_detail(module_id, goal_id):
             learning_goal_id=goal_id
         ).order_by(CoreLearningGoal.order_index).all()
 
+        # Get any pending scheduled session for this submission
+        if latest_submission:
+            scheduled_session = ScheduledSession.query.filter(
+                ScheduledSession.submission_id == latest_submission.id,
+                ScheduledSession.user_id == current_user.id,
+                ScheduledSession.session_completed_at.is_(None)
+            ).order_by(ScheduledSession.scheduled_at.desc()).first()
+
     # Get challenge rubric if available
     challenge_rubric = ChallengeRubric.query.filter_by(learning_goal_id=goal_id).first()
 
@@ -61,5 +71,6 @@ def goal_detail(module_id, goal_id):
         latest_submission=latest_submission,
         goal_progress=goal_progress,
         core_learning_goals=core_learning_goals,
-        challenge_rubric=challenge_rubric
+        challenge_rubric=challenge_rubric,
+        scheduled_session=scheduled_session
     )

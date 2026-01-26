@@ -7,6 +7,7 @@ and get instructor reviews.
 """
 
 import re
+import logging
 import markdown
 from markupsafe import Markup
 from flask import Flask, render_template
@@ -15,6 +16,17 @@ from config import Config
 from models import db
 from models.user import User
 from models.module import LearningModule
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s %(name)s: %(message)s',
+    handlers=[
+        logging.StreamHandler(),  # Console output
+        logging.FileHandler('app.log')  # File output
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Create Flask app
 app = Flask(__name__)

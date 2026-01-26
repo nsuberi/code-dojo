@@ -20,6 +20,9 @@ class AgentSession(db.Model):
     status = db.Column(db.String(20), default='active')  # active, completed, abandoned
     guide_me_mode = db.Column(db.Boolean, default=False)
     langsmith_run_id = db.Column(db.String(100))
+    langsmith_trace_headers = db.Column(db.Text)  # Store serialized headers for parent context
+    current_topic_thread_id = db.Column(db.String(100))  # Current topic's thread ID for tracing
+    current_topic_trace_headers = db.Column(db.Text)  # Store serialized headers for topic context
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_at = db.Column(db.DateTime)
 
@@ -61,6 +64,9 @@ class AgentSession(db.Model):
             'status': self.status,
             'guide_me_mode': self.guide_me_mode,
             'langsmith_run_id': self.langsmith_run_id,
+            'langsmith_trace_headers': self.langsmith_trace_headers,
+            'current_topic_thread_id': self.current_topic_thread_id,
+            'current_topic_trace_headers': self.current_topic_trace_headers,
             'current_goal_index': self.current_goal_index,
             'current_rubric_item_index': self.current_rubric_item_index,
             'current_attempts': self.current_attempts,
