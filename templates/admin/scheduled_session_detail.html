@@ -120,7 +120,7 @@
             {% for session in agent_sessions %}
                 <details class="agent-session-item">
                     <summary>
-                        <span class="session-type">{{ session.session_type or 'Unknown' }}</span>
+                        <span class="session-type">{{ session.harness_type | title }} - {% if session.core_goal %}{{ session.core_goal.title }}{% else %}{{ session.learning_goal.title }}{% endif %}</span>
                         <span class="session-date">{{ session.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
                         <span class="message-count">{{ session.messages.count() }} messages</span>
                     </summary>

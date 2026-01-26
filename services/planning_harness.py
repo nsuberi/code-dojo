@@ -134,6 +134,9 @@ Let's start with **{first_goal['title']}**: {first_goal['description']}
 What's your initial thought on how you'd approach this in your implementation?"""
 
             self.session.current_goal_index = 0
+            # Set core_goal_id if not already set (first topic focused)
+            if self.session.core_goal_id is None:
+                self.session.core_goal_id = first_goal['id']
             db.session.commit()
 
         self.store_message('assistant', response)
@@ -157,6 +160,9 @@ Based on what you said: "{user_message[:100]}..."
 What specific approach are you thinking for handling this in your code?"""
 
         self.session.current_goal_index = goal_index
+        # Set core_goal_id if not already set (first topic focused)
+        if self.session.core_goal_id is None:
+            self.session.core_goal_id = goal['id']
         db.session.commit()
 
         self.store_message('assistant', response)

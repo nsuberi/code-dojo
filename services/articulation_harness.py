@@ -376,6 +376,9 @@ Explaining your code verbally is essential for code reviews and technical interv
         self.session.current_attempts = 0
         self.session.current_topic_thread_id = self._topic_thread_id  # Persist for HTTP boundaries
         self.session.current_topic_trace_headers = json.dumps(dict(self._topic_trace_headers))  # Store headers
+        # Set core_goal_id if not already set (first topic focused)
+        if self.session.core_goal_id is None:
+            self.session.core_goal_id = goal['id']
         db.session.commit()
 
         # Mark as in progress

@@ -3,6 +3,7 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from sqlalchemy import or_
 from models import db
 from models.user import User
 from models.submission import Submission
@@ -178,10 +179,15 @@ def view_scheduled_session(session_id):
         GoalProgress.core_goal_id.in_(core_goal_ids)
     ).all() if core_goal_ids else []
 
-    # Get agent sessions for this user and submission
+    # Get agent sessions for this user:
+    # - Articulation sessions tied to this submission
+    # - Planning sessions tied to this challenge (learning_goal)
     agent_sessions = AgentSession.query.filter(
         AgentSession.user_id == user.id,
-        AgentSession.submission_id == submission.id
+        or_(
+            AgentSession.submission_id == submission.id,  # Articulation sessions
+            AgentSession.learning_goal_id == submission.goal_id  # Planning sessions
+        )
     ).order_by(AgentSession.created_at.desc()).all()
 
     # Get anatomy conversations (already scoped to submission)
